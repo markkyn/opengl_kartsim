@@ -1,10 +1,9 @@
-#IFNDEF ALG_LINEAR_H
+#ifndef ALG_LINEAR_H
 #define ALG_LINEAR_H
 
 class alg_linear
 {
 private:
-protected:
 public:
     alg_linear(/* args */);
     ~alg_linear();
@@ -13,3 +12,6 @@ public:
 alg_linear::alg_linear(/* args */)
 {
 }
+
+
+#endif /* ALG_LINEAR_H */
