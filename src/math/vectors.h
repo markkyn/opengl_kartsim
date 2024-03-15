@@ -12,10 +12,13 @@ public:
     Vector3D(float x, float y, float z);
     Vector3D();
 
-    void rotate(Quaternion quat);
+    float getX();
+    float getY();
+    float getZ();
+
 };
 
-#endif /* TERRENO_H */
+#endif /* VECTORS_H */
 
 #ifndef QUATERNION_H
 #define QUATERNION_H

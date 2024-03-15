@@ -1,8 +1,8 @@
 // matrix.cpp
 
 #include <iostream>
+#include <stdexcept>
 #include "matrix.h"
-
 /*
   o ----------------------> y
   | (0,0) (0,1) ...    (0, m-1)
@@ -13,57 +13,44 @@
  \|/
   x
 */
-
-Matrix::Matrix(size_t n, size_t m)
+Matrix::Matrix(size_t n, size_t m) : n(n), m(m)
 {
-  Matrix::n = n;
-  Matrix::m = m;
-
-  // Declaration
   data = new float *[n];
-
-  for (int i = 0; i < m; i++)
+  for (size_t i = 0; i < n; i++)
+  {
     data[i] = new float[m];
-
-  // Setting all zeros
-  for (int x = 0; x < n; x++)
-    for (int y = 0; y < m; y++)
-      data[x][y] = 0.0;
+    for (size_t j = 0; j < m; j++)
+      data[i][j] = 0.0;
+  }
 }
 
-size_t Matrix::get_n()
+Matrix Matrix::operator*(const Matrix &other) const
 {
-  return Matrix::n;
-}
+  if (this->m != other.n)
+  {
+    throw std::invalid_argument("As dimensões das matrizes são incompatíveis para multiplicação.");
+  }
 
-void Matrix::set_n(size_t n)
-{
-  size_t curr_n = Matrix::n;
-
-  for (int i = curr_n; i < n; i++)
-    data[i] = new float[Matrix::get_m()];
-}
-
-size_t Matrix::get_m()
-{
-  return Matrix::m;
-}
-
-void Matrix::set_m(size_t m)
-{
-  size_t curr_m = Matrix::m;
-}
-
-Matrix Matrix::operator+(Matrix const &matrix2)
-{
-  for (int i = 0; i < Matrix::n; i++)
-    for (int j = 0; j < Matrix::m; j++)
-      Matrix::data[i][j] += matrix2.data[i][j];
-}
+  Matrix result(n, other.m);
+  for (size_t i = 0; i < result.n; i++)
+  {
+    for (size_t j = 0; j < result.m; j++)
+    {
+      for (size_t k = 0; k < this->m; k++)
+      {
+        result.data[i][j] += data[i][k] * other.data[k][j];
+      }
+    }
+  }
+  return result;
+};
 
 void Matrix::print()
 {
-  for (int i = 0; i < Matrix::n; i++)
-    for (int j = 0; j < Matrix::m; j++)
-      
+  for (int x = 0; x < this->n; x++)
+  {
+    for (int y = 0; y < this->m; y++)
+      std::cout << this->getValue(x, y);
+    std::cout << "\n";
+  }
 }
