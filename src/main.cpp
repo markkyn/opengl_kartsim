@@ -1,5 +1,7 @@
+// CG - T01 - Marcos Gabriel, Gustavo;
 // main.cpp
-// CG - T01 - Marcos Gabriel;
+// g++ -o main ./src/main.cpp ./src/math/matrix.cpp ./src/gameobjects/camera.cpp -lGL -lGLU -lglut
+// ./main ./assets/file.ppm
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -12,11 +14,14 @@
 #include <stdint.h>
 #include <vector>
 
+#include "./gameobjects/camera.h"
+
 #define MIN_8BIT 0;
 #define MAX_8BIT 255;
 
 float posCameraX, posCameraY, posCameraZ;
 GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
+Camera* camera;
 
 void iluminar()
 {
@@ -160,34 +165,31 @@ void desenhar_terreno()
     GLfloat mat_shininess[] = {30.0};
 
     glColor3f(0.5f, 0.7f, 0.3f);
-    
+
     glPushAttrib(GL_LIGHTING_BIT);
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-    
-   glEnable(GL_LIGHTING);
 
+    glEnable(GL_LIGHTING);
 
     glBegin(GL_QUADS);
-    std::cout << "[Vertex]" << terrain_width << "   " << terrain_depth << std::endl;
 
     int escala = 1;
     for (int i = 0; i < terrain_width - 1; i++)
         for (int j = 0; j < terrain_depth - 1; j++)
         {
-            printf("[Vertex] x=%2d y=%2d z=%2d\n", i, altitude[i][j], j);
             glVertex3f(
                 i - offset_x,
                 altitude[i][j] - offset_y,
                 j - offset_z);
-            
+
             glVertex3f(
                 i + 1 - offset_x,
                 altitude[i + 1][j] - offset_z,
                 j - offset_y);
-            
+
             glVertex3f(
                 i + 1 - offset_x,
                 altitude[i + 1][j + 1] - offset_y,
@@ -199,7 +201,7 @@ void desenhar_terreno()
                 j + 1 - offset_z);
         }
     glEnd();
-    
+
     glDisable(GL_LIGHTING);
     glPopAttrib();
 }
@@ -216,6 +218,8 @@ void init(void)
     posCameraX = 4;
     posCameraY = 2;
     posCameraZ = 0;
+
+    camera = new Camera(posCameraX, posCameraY, posCameraZ);
 }
 
 void specialKeys(int key, int x, int y)
@@ -224,12 +228,16 @@ void specialKeys(int key, int x, int y)
     switch (key)
     {
     case GLUT_KEY_LEFT:
-        posCameraX = posCameraX * cos(-angulo) + posCameraZ * sin(-angulo);
-        posCameraZ = -posCameraX * sin(-angulo) + posCameraZ * cos(-angulo);
+        camera->translate(0.5, 0.0, 0.0);
+        
+        //posCameraX = posCameraX * cos(-angulo) + posCameraZ * sin(-angulo);
+        //posCameraZ = -posCameraX * sin(-angulo) + posCameraZ * cos(-angulo);
         break;
     case GLUT_KEY_RIGHT:
-        posCameraX = posCameraX * cos(angulo) + posCameraZ * sin(angulo);
-        posCameraZ = -posCameraX * sin(angulo) + posCameraZ * cos(angulo);
+        camera->translate(-0.5, 0.0, 0.0);
+
+        //posCameraX = posCameraX * cos(angulo) + posCameraZ * sin(angulo);
+        //posCameraZ = -posCameraX * sin(angulo) + posCameraZ * cos(angulo);
         break;
     }
     glutPostRedisplay();
@@ -242,7 +250,9 @@ void display(void)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    gluLookAt(posCameraX, posCameraY, posCameraZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+    gluLookAt(camera->getX(), camera->getY(), camera->getZ() , 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+    std::cout << camera->getX() << std::endl;
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
 
     desenhar_luz();
@@ -271,8 +281,10 @@ int main(int argc, char **argv)
 
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow(argv[0]);
+    glutCreateWindow("Hello World");
 
+    /* Creating Objects */
+    /* Reading Terrain File */
     load_file(argv[1]);
     init();
 
