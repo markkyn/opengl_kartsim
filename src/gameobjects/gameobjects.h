@@ -4,20 +4,29 @@
 #include "../math/vectors.h"
 #include <iostream>
 #include <vector>
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
 
 class GameObject
 {
 private:
     /* Global Position */
     float x, y, z;
-    void readObj(const std::string &objFileName);
-    std::vector<Vector3D> vertex;
-    std::vector<Vector3D> vertexNormal;
-    std::vector<Vector3D> vertexTexture;
+    
+    /* Points */
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals;
+    uint vertexBuffer;
 
+    /* Properties */
+    float scaleValue;
+
+    void readObj(const std::string &objFileName);
 
 public:
-    GameObject(const std::string &objFileName);
+    GameObject(const char *objFileName);
     ~GameObject();
 
     void drawModel();

@@ -3,17 +3,20 @@
 #include <string>
 #include <cstring>
 
-#include "../../include/objloader.hpp"
-#include "../math/vectors.h"
+#include <glm/glm.hpp>
+#include <glm/vec3.hpp> 
 
-bool loadOBJ(char *path, std::vector<Vector3D> &out_vertices, std::vector<glm::vec2> &out_uvs, std::vector<Vector3D> &out_normals)
+#include "../../include/objloader.hpp"
+
+
+bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices, std::vector<glm::vec2> &out_uvs, std::vector<glm::vec3> &out_normals)
 {
 	printf("Loading OBJ file %s...\n", path);
 
 	std::vector<unsigned int> vertexIndices, uvIndices, normalIndices;
-	std::vector<Vector3D> temp_vertices;
-	//std::vector<glm::vec2> temp_uvs;
-	std::vector<Vector3D> temp_normals;
+	std::vector<glm::vec3> temp_vertices;
+	std::vector<glm::vec2> temp_uvs;
+	std::vector<glm::vec3> temp_normals;
 
 	FILE *file = fopen(path, "r");
 	if (file == NULL)
@@ -36,13 +39,10 @@ bool loadOBJ(char *path, std::vector<Vector3D> &out_vertices, std::vector<glm::v
 
 		if (strcmp(lineHeader, "v") == 0)
 		{
-			float vX, vY, vZ;
-			fscanf(file, "%f %f %f\n", &vX, &vY, &vZ);
-			
-			Vector3D vertex;
+			glm::vec3 vertex;
+			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 			temp_vertices.push_back(vertex);
 		}
-		/*
 		else if (strcmp(lineHeader, "vt") == 0)
 		{
 			glm::vec2 uv;
@@ -50,14 +50,11 @@ bool loadOBJ(char *path, std::vector<Vector3D> &out_vertices, std::vector<glm::v
 			uv.y = -uv.y; // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
 			temp_uvs.push_back(uv);
 		}
-		*/
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
-			float nX,nY,nZ;
-			fscanf(file, "%f %f %f\n", &nX, &nY, &nZ);
-			
-			Vector3D normalVertex(nX, nY, nZ);
-			temp_normals.push_back(normalVertex);
+			glm::vec3 normal;
+			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			temp_normals.push_back(normal);
 		}
 		else if (strcmp(lineHeader, "f") == 0)
 		{
@@ -98,13 +95,13 @@ bool loadOBJ(char *path, std::vector<Vector3D> &out_vertices, std::vector<glm::v
 		unsigned int normalIndex = normalIndices[i];
 
 		// Get the attributes thanks to the index
-		Vector3D vertex = temp_vertices[vertexIndex - 1];
-		//glm::vec2 uv = temp_uvs[uvIndex - 1];
+		glm::vec3 vertex = temp_vertices[vertexIndex - 1];
+		glm::vec2 uv = temp_uvs[uvIndex - 1];
 		glm::vec3 normal = temp_normals[normalIndex - 1];
 
 		// Put the attributes in buffers
 		out_vertices.push_back(vertex);
-		//out_uvs.push_back(uv);
+		out_uvs.push_back(uv);
 		out_normals.push_back(normal);
 	}
 	fclose(file);

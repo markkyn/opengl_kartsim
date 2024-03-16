@@ -4,48 +4,35 @@
 #include "../math/matrix.h"
 #include "./gameobjects.h"
 
-#include <vector>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+// #include <GL/glew.h>
+#include <GL/gl.h>
 #include <GL/glut.h>
 #include "../../include/objloader.hpp"
 
-GameObject::GameObject(const std::string &objFileName)
+GameObject::GameObject(const char *objFileName)
 {
-    this->readObj(objFileName);
-}
+    x = 0.0;
+    y = 0.0;
+    z = 0.0;
+    scaleValue = 0.01;
 
-void GameObject::readObj(const std::string &objFileName)
-{
-    std::ifstream file(objFileName);
-    std::string line;
-    while (getline(file, line))
-    {
-        std::istringstream lineStream(line);
-        std::string lineType;
-        lineStream >> lineType;
-        if (lineType == "v")
-        {
-            float x, y, z;
-            lineStream >> x >> y >> z;
-            vertex.push_back(Vector3D(x, y, z));
-        }
-        else if (lineType == "vn")
-        {
-            float x, y, z;
-            lineStream >> x >> y >> z;
-            vertexNormal.push_back(Vector3D(x, y, z));
-        }
-    }
+    bool res = loadOBJ(objFileName, vertices, uvs, normals);
+
+    std::cout << "resultado = " << res << std::endl;
 }
 
 void GameObject::drawModel()
 {
-    glBegin(GL_TRIANGLE_STRIP);
-    for (auto vert : vertex)
-        glVertex3f(vert.getX() + this->x, vert.getY() + this->y, vert.getZ() + this->y);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBegin(GL_TRIANGLES); // Mudar para GL_TRIANGLES, GL_LINES, etc., conforme necessário.
+
+    for (auto &vertex : vertices)
+        glVertex3f(vertex.x  + this->x, vertex.y + this->y, vertex.z + this->z);
     glEnd();
+    glutSwapBuffers();
 }
 
 void GameObject::translate(Vector3D to_pos)
@@ -64,4 +51,40 @@ void GameObject::translate(Vector3D to_pos)
     translation_matrix.setValue(4, 0, dX);
     translation_matrix.setValue(4, 1, dY);
     translation_matrix.setValue(4, 2, dZ);
+
+    Matrix position_matrix(1, 4);
+    position_matrix.setValue(0, 0, this->x);
+    position_matrix.setValue(0, 1, this->y);
+    position_matrix.setValue(0, 2, this->z);
+    position_matrix.setValue(0, 3, 1);
+
+    Matrix resultMatrix = position_matrix * translation_matrix;
+
+    this->x = resultMatrix.getValue(0, 0);
+    this->y = resultMatrix.getValue(0, 1);
+    this->z = resultMatrix.getValue(0, 2);
+}
+
+void GameObject::scale(float x, float y, float z)
+{
+    Matrix scaleMatrix(4, 4);
+    scaleMatrix.setValue(0, 0, x);
+    scaleMatrix.setValue(1, 1, y);
+    scaleMatrix.setValue(2, 2, z);
+    scaleMatrix.setValue(3, 3, 1);
+
+    Matrix position_matrix(1, 4);
+    for (auto &vertex : vertices)
+    {
+        position_matrix.setValue(0, 0, vertex.x);
+        position_matrix.setValue(0, 1, vertex.y);
+        position_matrix.setValue(0, 2, vertex.z);
+        position_matrix.setValue(0, 3, 1);
+
+        Matrix resultMatrix = position_matrix * scaleMatrix;
+
+        vertex.x = resultMatrix.getValue(0, 0);
+        vertex.y = resultMatrix.getValue(0, 1);
+        vertex.z = resultMatrix.getValue(0, 2);
+    }
 }

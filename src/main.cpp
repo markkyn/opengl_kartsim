@@ -6,6 +6,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <GLFW/glfw3.h>
+
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
@@ -220,6 +222,7 @@ void init(void)
 
     camera = new Camera(4, 2, 3);
     car = new GameObject("../assets/car_formula.obj");
+    car->scale(0.01, 0.01, 0.01);
 }
 
 void specialKeys(int key, int x, int y)
@@ -228,16 +231,16 @@ void specialKeys(int key, int x, int y)
     switch (key)
     {
     case GLUT_KEY_UP:
-        camera->translate(0.5, 0.0, 0.0);
-        break;
-    case GLUT_KEY_LEFT:
-        camera->translate(0.0,-0.5, 0.0);
-        break;
-    case GLUT_KEY_RIGHT:
         camera->translate(0.0, 0.5, 0.0);
         break;
-    case GLUT_KEY_DOWN:
+    case GLUT_KEY_LEFT:
         camera->translate(-0.5, 0.0, 0.0);
+        break;
+    case GLUT_KEY_RIGHT:
+        camera->translate(0.5, 0.0, 0.0);
+        break;
+    case GLUT_KEY_DOWN:
+        camera->translate(0.0,-0.5, 0.0);
         break;
     }
     glutPostRedisplay();
@@ -277,7 +280,8 @@ int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-
+    glfwInit();
+    
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow("Hello World");
