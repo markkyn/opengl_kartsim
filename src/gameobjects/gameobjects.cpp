@@ -1,19 +1,17 @@
 // gameobjects.cpp
 
-#include "../math/vectors.h"
-#include "../math/matrix.h"
-#include "./gameobjects.h"
-
 #include <fstream>
 #include <sstream>
 #include <iostream>
-// #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "./gameobjects.h"
+#include "../math/matrix.h"
+#include "../math/vectors.h"
 #include "../../include/objloader.hpp"
 
 GameObject::GameObject(const char *objFileName)
@@ -22,6 +20,7 @@ GameObject::GameObject(const char *objFileName)
     y = 0.0;
     z = 0.0;
     scaleValue = 0.01;
+    cameraPtr = nullptr;
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 
@@ -50,6 +49,31 @@ void GameObject::drawModel()
     glEnd();
     glutSwapBuffers();
     glDisable(GL_LIGHTING);
+}
+
+void GameObject::display()
+{
+    this->drawModel();
+
+    /* Attached Camera */
+    if (cameraPtr)
+    {
+        float cameraOffsetX = -1.0f;
+        float cameraOffsetY = 1.0f;
+        float cameraOffsetZ = 0.0f;
+
+        cameraPtr->setX(this->getX() + cameraOffsetX);
+        cameraPtr->setY(this->getY() + cameraOffsetY);
+        cameraPtr->setZ(this->getZ() + cameraOffsetZ);
+
+        Vector3D lookAtCar(
+            this->getX(),
+            this->getY(),
+            this->getZ()
+        );
+
+        cameraPtr->display();
+    }
 }
 
 void GameObject::translate(Vector3D to_pos)
@@ -82,6 +106,10 @@ void GameObject::translate(Vector3D to_pos)
         vertex.y = resultMatrix.getValue(0, 1);
         vertex.z = resultMatrix.getValue(0, 2);
     }
+
+    this->x = this->x + dX;
+    this->y = this->y + dY;
+    this->z = this->z + dZ;
 }
 
 void GameObject::scale(float x, float y, float z)

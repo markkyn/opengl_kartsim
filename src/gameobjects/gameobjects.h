@@ -1,40 +1,46 @@
 #ifndef GAMEOBJECTS_H
 #define GAMEOBJECTS_H
 
-#include "../math/vectors.h"
 #include <iostream>
 #include <vector>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/glm.hpp>
 
+#include "../math/vectors.h"
+#include "./camera.h"
+
 class GameObject
 {
-private:
+protected:
     /* Global Position */
     float x, y, z;
-    
+
     /* Points */
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     uint vertexBuffer;
 
+    Camera *cameraPtr = nullptr;
+    Vector3D cameraOffset;
+
     /* Properties */
     float scaleValue;
 
     void readObj(const std::string &objFileName);
+    void drawModel();
 
 public:
     GameObject(const char *objFileName);
-    ~GameObject();
-
-    void drawModel();
+    void attachCamera(Camera *camera) { cameraPtr = camera; };
 
     void translate(Vector3D to_pos);
     void rotate(float x, float y, float z);
     void rotateQuat(double angle, Vector3D axis);
     void scale(float x, float y, float z);
+
+    void display();
 
     float getX() { return x; };
     float getY() { return y; };

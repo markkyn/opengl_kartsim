@@ -195,15 +195,20 @@ void init(void)
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
+    /* Camera */
     camera = new Camera(4, 2, 3);
+
+    /* GameObj = Car */
     car = new GameObject("../assets/car_formula.obj");
+
+    car->attachCamera(camera);
+
     car->scale(0.01, 0.01, 0.01);
     Vector3D yAxis(0.0f, 1.0f, 0.0f);
     Vector3D zAxis(0.0f, 0.0f, 1.0f);
     Vector3D xAxis(1.0f, 0.0f, 0.0f);
 
     car->rotateQuat(-90, xAxis);
-    //car->rotateQuat(90, zAxis);
 }
 
 void specialKeys(int key, int x, int y)
@@ -213,19 +218,17 @@ void specialKeys(int key, int x, int y)
     {
     case GLUT_KEY_UP:
     {
-        Vector3D axis(0.0f, 0.0f, 1.0f);
-        double angle = 0.1; // Rotação de 90 graus
-        car->rotateQuat(angle, axis);
+        Vector3D forward(0.1, 0, 0);
+        car->translate(forward);
         break;
     }
     case GLUT_KEY_LEFT:
-        camera->translate(-0.5, 0.0, 0.0);
+    {
+
         break;
+    }
     case GLUT_KEY_RIGHT:
     {
-        Vector3D forwardPos(0.1, 0, 0);
-        car->translate(forwardPos);
-
         break;
     }
     case GLUT_KEY_DOWN:
@@ -244,8 +247,16 @@ void display(void)
     glLoadIdentity();
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
 
+    Vector3D lookAtCar(
+        car->getX(),
+        car->getY(),
+        car->getZ()
+    );
+
+    camera->lookAt(lookAtCar);
+
     camera->display();
-    car->drawModel();
+    car->display();
 
     desenhar_luz();
     desenhar_eixos();
