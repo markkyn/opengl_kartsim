@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < M; i++)
     {
-
         matrix.setValue(i, i, 1);
         matrix2.setValue(i, i, 1);
     }

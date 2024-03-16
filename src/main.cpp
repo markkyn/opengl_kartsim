@@ -15,13 +15,17 @@
 #include <vector>
 
 #include "./gameobjects/camera.h"
+#include "./gameobjects/gameobjects.h"
 
 #define MIN_8BIT 0;
 #define MAX_8BIT 255;
 
-float posCameraX, posCameraY, posCameraZ;
+#define DEBUG false
+
 GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
-Camera* camera;
+Camera *camera;
+GameObject *car;
+
 
 void iluminar()
 {
@@ -111,7 +115,6 @@ void desenhar_objeto()
 
     glPopAttrib();
 }
-
 // Terrain
 
 std::vector<std::vector<int>> altitude;
@@ -215,11 +218,8 @@ void init(void)
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
-    posCameraX = 4;
-    posCameraY = 2;
-    posCameraZ = 0;
-
-    camera = new Camera(posCameraX, posCameraY, posCameraZ);
+    camera = new Camera(4, 2, 3);
+    car = new GameObject("../assets/car_formula.obj");
 }
 
 void specialKeys(int key, int x, int y)
@@ -227,17 +227,17 @@ void specialKeys(int key, int x, int y)
     float angulo = 2 * M_PI / 180;
     switch (key)
     {
-    case GLUT_KEY_LEFT:
+    case GLUT_KEY_UP:
         camera->translate(0.5, 0.0, 0.0);
-        
-        //posCameraX = posCameraX * cos(-angulo) + posCameraZ * sin(-angulo);
-        //posCameraZ = -posCameraX * sin(-angulo) + posCameraZ * cos(-angulo);
+        break;
+    case GLUT_KEY_LEFT:
+        camera->translate(0.0,-0.5, 0.0);
         break;
     case GLUT_KEY_RIGHT:
+        camera->translate(0.0, 0.5, 0.0);
+        break;
+    case GLUT_KEY_DOWN:
         camera->translate(-0.5, 0.0, 0.0);
-
-        //posCameraX = posCameraX * cos(angulo) + posCameraZ * sin(angulo);
-        //posCameraZ = -posCameraX * sin(angulo) + posCameraZ * cos(angulo);
         break;
     }
     glutPostRedisplay();
@@ -249,15 +249,14 @@ void display(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    gluLookAt(camera->getX(), camera->getY(), camera->getZ() , 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-
-    std::cout << camera->getX() << std::endl;
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
+
+    camera->display();
+    car->drawModel();
 
     desenhar_luz();
     desenhar_eixos();
-    desenhar_terreno();
+    //desenhar_terreno();
 
     glutSwapBuffers();
 }

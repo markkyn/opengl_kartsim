@@ -1,40 +1,16 @@
-
-#include "vectors.h";
+#include "./vectors.h"
 
 /* constructors */
 Vector3D::Vector3D()
 {
-    Vector3D::x = 3.0;
-    Vector3D::y = 3.0;
-    Vector3D::z = 3.0;
+    this->x = 0.0;
+    this->y = 0.0;
+    this->z = 0.0;
 }
 
 Vector3D::Vector3D(float x, float y, float z)
 {
-}
-
-/* destructors */
-Vector3D::~Vector3D()
-{
-}
-
-/* getters and setters */
-float getX()
-{
-}
-float getY()
-{
-}
-float getZ()
-{
-}
-
-float setX()
-{
-}
-float setY()
-{
-}
-float setZ()
-{
+    this->x = x;
+    this->y = y;
+    this->z = z;
 }

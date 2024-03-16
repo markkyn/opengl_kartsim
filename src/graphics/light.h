@@ -1,15 +1,12 @@
+#ifndef LIGHT_H
+#define LIGHT_H
+
 class Light
 {
 private:
 public:
-    Light(/* args */);
+    Light();
     ~Light();
 };
 
-Light::Light(/* args */)
-{
-}
-
-Light::~Light()
-{
-}
+#endif /* LIGHT_H */

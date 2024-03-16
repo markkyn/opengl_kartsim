@@ -1,13 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "./gameobjects.h"
+#include "../math/vectors.h"
 
 class Camera
 {
 private:
     float x, y, z; // Global Position
-    bool activated;
+    Vector3D lookingAt;
+    Vector3D upVector;
 
 public:
     Camera(float sX, float sY, float sZ);

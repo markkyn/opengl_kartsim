@@ -12,10 +12,9 @@ public:
     Vector3D(float x, float y, float z);
     Vector3D();
 
-    float getX();
-    float getY();
-    float getZ();
-
+    float getX() { return x; };
+    float getY() { return y; };
+    float getZ() { return z; };
 };
 
 #endif /* VECTORS_H */
@@ -27,6 +26,7 @@ class Quaternion
 {
 private:
     float a, b, c, d;
+
 public:
     Quaternion();
 

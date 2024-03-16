@@ -11,6 +11,9 @@ Camera::Camera(float sX, float sY, float sZ)
     this->x = sX;
     this->y = sY;
     this->z = sZ;
+
+    lookingAt = Vector3D(0, 0, 0);
+    upVector = Vector3D(0, 1, 0);
 }
 
 void Camera::translate(float dX, float dY, float dZ)
@@ -42,4 +45,13 @@ void Camera::translate(float dX, float dY, float dZ)
 
 void Camera::display()
 {
+    float lookX = this->lookingAt.getX();
+    float lookY = this->lookingAt.getY();
+    float lookZ = this->lookingAt.getZ();
+
+    float upX = this->upVector.getX();
+    float upY = this->upVector.getY();
+    float upZ = this->upVector.getZ();
+
+    gluLookAt(this->x, this->y, this->z, lookX, lookY, lookZ, upX, upY, upZ);
 }
