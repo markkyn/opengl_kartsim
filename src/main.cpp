@@ -28,7 +28,6 @@ GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
 Camera *camera;
 GameObject *car;
 
-
 void iluminar()
 {
     GLfloat light0_position[] = {0.0, 1.0, 0.0, 0.0};
@@ -93,30 +92,6 @@ void desenhar_eixos()
     glEnd();
 }
 
-void desenhar_objeto()
-{
-    GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
-    GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
-    GLfloat mat_shininess[] = {30.0};
-
-    glPushAttrib(GL_LIGHTING_BIT);
-
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-
-    glEnable(GL_LIGHTING);
-
-    glBegin(GL_QUADS);
-    glVertex3f(-5.0f, 0.0f, -5.0f);
-    glVertex3f(5.0f, 0.0f, -5.0f);
-    glVertex3f(5.0f, 0.0f, 5.0f);
-    glVertex3f(-5.0f, 0.0f, 5.0f);
-    glEnd();
-    glDisable(GL_LIGHTING);
-
-    glPopAttrib();
-}
 // Terrain
 
 std::vector<std::vector<int>> altitude;
@@ -223,6 +198,12 @@ void init(void)
     camera = new Camera(4, 2, 3);
     car = new GameObject("../assets/car_formula.obj");
     car->scale(0.01, 0.01, 0.01);
+    Vector3D yAxis(0.0f, 1.0f, 0.0f);
+    Vector3D zAxis(0.0f, 0.0f, 1.0f);
+    Vector3D xAxis(1.0f, 0.0f, 0.0f);
+
+    car->rotateQuat(-90, xAxis);
+    //car->rotateQuat(90, zAxis);
 }
 
 void specialKeys(int key, int x, int y)
@@ -231,16 +212,25 @@ void specialKeys(int key, int x, int y)
     switch (key)
     {
     case GLUT_KEY_UP:
-        camera->translate(0.0, 0.5, 0.0);
+    {
+        Vector3D axis(0.0f, 0.0f, 1.0f);
+        double angle = 0.1; // Rotação de 90 graus
+        car->rotateQuat(angle, axis);
         break;
+    }
     case GLUT_KEY_LEFT:
         camera->translate(-0.5, 0.0, 0.0);
         break;
     case GLUT_KEY_RIGHT:
-        camera->translate(0.5, 0.0, 0.0);
+    {
+        Vector3D forwardPos(0.1, 0, 0);
+        car->translate(forwardPos);
+
         break;
+    }
     case GLUT_KEY_DOWN:
-        camera->translate(0.0,-0.5, 0.0);
+
+        camera->translate(0.0, -0.5, 0.0);
         break;
     }
     glutPostRedisplay();
@@ -259,7 +249,7 @@ void display(void)
 
     desenhar_luz();
     desenhar_eixos();
-    //desenhar_terreno();
+    // desenhar_terreno();
 
     glutSwapBuffers();
 }
@@ -281,9 +271,9 @@ int main(int argc, char **argv)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glfwInit();
-    
-    glutInitWindowSize(500, 500);
-    glutInitWindowPosition(100, 100);
+
+    glutInitWindowSize(1920, 1080);
+    glutInitWindowPosition(0, 0);
     glutCreateWindow("Hello World");
 
     /* Creating Objects */

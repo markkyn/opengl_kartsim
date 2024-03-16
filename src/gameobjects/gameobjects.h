@@ -32,7 +32,8 @@ public:
     void drawModel();
 
     void translate(Vector3D to_pos);
-    void rotate();
+    void rotate(float x, float y, float z);
+    void rotateQuat(double angle, Vector3D axis);
     void scale(float x, float y, float z);
 
     float getX() { return x; };

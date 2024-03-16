@@ -1,5 +1,6 @@
 #ifndef VECTORS_H
 #define VECTORS_H
+#include <math.h>
 
 #include "matrix.h"
 
@@ -26,15 +27,30 @@ public:
 #ifndef QUATERNION_H
 #define QUATERNION_H
 
-class Quaternion
-{
-private:
-    float a, b, c, d;
+struct Quaternion {
+    double w, x, y, z;
 
-public:
-    Quaternion();
+    Quaternion(double angle, double ux, double uy, double uz) {
+        double rad = angle * M_PI / 180.0;
+        w = cos(rad / 2);
+        x = ux * sin(rad / 2);
+        y = uy * sin(rad / 2);
+        z = uz * sin(rad / 2);
+    }
 
-    Matrix as_matrix();
+    Quaternion operator*(const Quaternion& q) const {
+        return Quaternion(
+            w*q.w - x*q.x - y*q.y - z*q.z, // Parte real
+            w*q.x + x*q.w + y*q.z - z*q.y, // i componente
+            w*q.y - x*q.z + y*q.w + z*q.x, // j componente
+            w*q.z + x*q.y - y*q.x + z*q.w  // k componente
+        );
+    }
+
+    Quaternion conjugate() const {
+        return Quaternion(w, -x, -y, -z);
+    }
 };
+
 
 #endif /* QUATERNION_H */
