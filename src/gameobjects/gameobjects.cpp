@@ -21,10 +21,9 @@ GameObject::GameObject(const char *objFileName)
     z = 0.0;
     scaleValue = 0.01;
     cameraPtr = nullptr;
+    this->centerOfMass = glm::vec3(x, y, z);
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
-
-    std::cout << "resultado = " << res << std::endl;
 }
 
 void GameObject::drawModel()
@@ -53,27 +52,34 @@ void GameObject::drawModel()
 
 void GameObject::display()
 {
-    this->drawModel();
 
     /* Attached Camera */
     if (cameraPtr)
     {
-        float cameraOffsetX = -1.0f;
-        float cameraOffsetY = 1.0f;
+        /* CameraPos */
+        float cameraOffsetX = -4.0f;
+        float cameraOffsetY = 4.0f;
         float cameraOffsetZ = 0.0f;
 
         cameraPtr->setX(this->getX() + cameraOffsetX);
         cameraPtr->setY(this->getY() + cameraOffsetY);
         cameraPtr->setZ(this->getZ() + cameraOffsetZ);
 
+        float lookOffsetX = 0.0f;
+        float lookOffsetY = 0.0f;
+        float lookOffsetZ = 0.0f;
+
+        /* LookAt */
         Vector3D lookAtCar(
-            this->getX(),
-            this->getY(),
-            this->getZ()
-        );
+            this->x + lookOffsetX,
+            this->y + lookOffsetY,
+            this->z + lookOffsetZ);
+        cameraPtr->lookAt(lookAtCar);
 
         cameraPtr->display();
     }
+
+    this->drawModel();
 }
 
 void GameObject::translate(Vector3D to_pos)
@@ -110,6 +116,8 @@ void GameObject::translate(Vector3D to_pos)
     this->x = this->x + dX;
     this->y = this->y + dY;
     this->z = this->z + dZ;
+
+    this->centerOfMass = glm::vec3(x, y, z);
 }
 
 void GameObject::scale(float x, float y, float z)
@@ -180,24 +188,19 @@ void GameObject::rotate(float x, float y, float z)
 
 void GameObject::rotateQuat(double angle, Vector3D axis)
 {
-    // Converter angle para radianos
     double angleRadians = angle * M_PI / 180.0;
 
-    // Criar um quaternion de rotação usando GLM
     glm::quat rotationQuat = glm::angleAxis((float)angleRadians, glm::vec3(axis.getX(), axis.getY(), axis.getZ()));
 
-    // Rotacionar cada vértice
     for (glm::vec3 &vertex : vertices)
     {
-        // Convertendo o vértice para o tipo glm::quat para a multiplicação de quaternions
-        glm::quat vertexQuat(0.0f, vertex.x, vertex.y, vertex.z);
+        glm::vec3 translatedVertex = vertex - centerOfMass;
 
-        // Aplicar a rotação
-        glm::quat rotatedVertexQuat = rotationQuat * vertexQuat * glm::conjugate(rotationQuat);
+        glm::vec3 rotatedVertex = rotationQuat * translatedVertex;
 
-        // Atualizar o vértice com as novas coordenadas
-        vertex.x = rotatedVertexQuat.x;
-        vertex.y = rotatedVertexQuat.y;
-        vertex.z = rotatedVertexQuat.z;
+        vertex = rotatedVertex + centerOfMass;
     }
+
+    // Update attributes
+    this->centerOfMass = glm::vec3(x, y, z);
 }

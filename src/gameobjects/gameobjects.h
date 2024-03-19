@@ -22,8 +22,12 @@ protected:
     std::vector<glm::vec3> normals;
     uint vertexBuffer;
 
+    glm::vec3 centerOfMass;
+
     Camera *cameraPtr = nullptr;
     Vector3D cameraOffset;
+
+    Vector3D forward;
 
     /* Properties */
     float scaleValue;

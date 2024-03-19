@@ -28,6 +28,12 @@ GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
 Camera *camera;
 GameObject *car;
 
+/* Helpers */
+Vector3D yAxis(0.0f, 1.0f, 0.0f);
+Vector3D zAxis(0.0f, 0.0f, 1.0f);
+Vector3D xAxis(1.0f, 0.0f, 0.0f);
+
+
 void iluminar()
 {
     GLfloat light0_position[] = {0.0, 1.0, 0.0, 0.0};
@@ -204,9 +210,6 @@ void init(void)
     car->attachCamera(camera);
 
     car->scale(0.01, 0.01, 0.01);
-    Vector3D yAxis(0.0f, 1.0f, 0.0f);
-    Vector3D zAxis(0.0f, 0.0f, 1.0f);
-    Vector3D xAxis(1.0f, 0.0f, 0.0f);
 
     car->rotateQuat(-90, xAxis);
 }
@@ -224,15 +227,16 @@ void specialKeys(int key, int x, int y)
     }
     case GLUT_KEY_LEFT:
     {
-
+        car->rotateQuat(5, yAxis);
         break;
     }
     case GLUT_KEY_RIGHT:
     {
+        car->rotateQuat(-5, yAxis);
+
         break;
     }
     case GLUT_KEY_DOWN:
-
         camera->translate(0.0, -0.5, 0.0);
         break;
     }
@@ -247,15 +251,7 @@ void display(void)
     glLoadIdentity();
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
 
-    Vector3D lookAtCar(
-        car->getX(),
-        car->getY(),
-        car->getZ()
-    );
 
-    camera->lookAt(lookAtCar);
-
-    camera->display();
     car->display();
 
     desenhar_luz();
