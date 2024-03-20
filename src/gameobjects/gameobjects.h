@@ -39,6 +39,11 @@ protected:
     void readObj(const std::string &objFileName);
     void alignWithTerrainNormal(Vector3D normalAtPoint);
 
+    /* Physics */
+    float speed;
+    float acelleration;
+    Vector3D direction; // wheel direction 
+
 public:
     GameObject(const char *objFileName);
 
@@ -51,6 +56,7 @@ public:
     void scale(float x, float y, float z);
 
     void display();
+    
     float getX() { return x; };
     float getY() { return y; };
     float getZ() { return z; };
@@ -59,6 +65,14 @@ public:
     void setY(float value) { y = value; };
     void setZ(float value) { z = value; };
     Vector3D getForward() { return forward; };
+
+    void setSpeed(float value) { speed = value; };
+    void setAcelleration(float value) { acelleration = value; };
+    
+    float getSpeed() { return speed; };
+    float getAcelleration() { return acelleration; };
+
+    void acellerate();
 
 
 };

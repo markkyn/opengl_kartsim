@@ -83,13 +83,6 @@ void Terrain::drawTerrain()
     for (int i = 0; i < width - 1; i++)
         for (int j = 0; j < depth - 1; j++)
         {
-            Vector3D vector1(i + 1 - i, topografy[i + 1][j] - topografy[i][j], j - j);
-            Vector3D vector2(i - i, topografy[i][j + 1] - topografy[i][j], j + 1 - j);
-
-            Vector3D normal = vector1.cross(vector2).normalize();
-
-            //glNormal3f(normal.getX(), normal.getY(), normal.getZ());
-
             glVertex3f(
                 i - offset_x,
                 topografy[i][j],

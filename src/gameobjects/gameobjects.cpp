@@ -83,6 +83,11 @@ GameObject::GameObject(const char *objFileName)
     this->centerOfMass = glm::vec3(x, y, z);
     forward = Vector3D(1, 0, 0);
     up = Vector3D(1, 0, 0);
+    
+    /* Physics */
+    direction = forward;
+    
+
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 }
