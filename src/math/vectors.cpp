@@ -18,10 +18,7 @@ Vector3D::Vector3D(float x, float y, float z)
     this->z = z;
 }
 
-Vector3D Vector3D::operator+(Vector3D &v)
-{
-    return Vector3D(x + v.x, y + v.y, z + v.z);
-}
+/* Operators */
 
 Vector3D Vector3D::operator-(Vector3D &v)
 {
@@ -54,6 +51,8 @@ Vector3D Vector3D::normalize()
     return Vector3D(x / mag, y / mag, z / mag);
 }
 
+
+/* Transformations */
 void Vector3D::rotate(float angleX, float angleY, float angleZ)
 {
     // X Rotation
@@ -91,6 +90,8 @@ void Vector3D::rotate(float angleX, float angleY, float angleZ)
     this->z = rotatedMatrix.getValue(2, 0);
 }
 
+
+/* Converts */
 Matrix Vector3D::toMatrix()
 {
     Matrix matrix(3, 1);

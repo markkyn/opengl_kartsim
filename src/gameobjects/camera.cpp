@@ -52,3 +52,9 @@ void Camera::display()
     gluLookAt(this->x, this->y, this->z, lookingAt.getX(), lookingAt.getY(), lookingAt.getZ(), upX, upY, upZ);
 
 }
+
+Vector3D Camera::applyTransform(const Vector3D& lightPosition) {
+    Vector3D cameraPosition = this->getPosition();
+    Vector3D translatedLightPosition = lightPosition + cameraPosition;
+    return translatedLightPosition;
+}

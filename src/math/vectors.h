@@ -2,16 +2,9 @@
 #define VECTORS_H
 
 #include <math.h>
-#include <cmath> 
+#include <cmath>
 
 #include "matrix.h"
-
-typedef struct
-{
-    double angleX;
-    double angleY;
-    double angleZ;
-} Angles;
 
 class Vector3D
 {
@@ -31,9 +24,13 @@ public:
     void setZ(float value) { z = value; };
 
     /* Operators */
-    Vector3D operator+(Vector3D &v);
+    Vector3D operator+(const Vector3D &rhs) const
+    {
+        return Vector3D(x + rhs.x, y + rhs.y, z + rhs.z);
+    }
     Vector3D operator-(Vector3D &v);
     Vector3D operator*(float scalar);
+
     float dot(Vector3D &v);
     Vector3D cross(Vector3D &v);
     void rotate(float angleX, float angleY, float angleZ);
