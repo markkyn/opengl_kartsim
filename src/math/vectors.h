@@ -20,6 +20,19 @@ public:
     void setX(float value) { x = value; };
     void setY(float value) { y = value; };
     void setZ(float value) { z = value; };
+
+    /* Operators */
+    Vector3D operator+(Vector3D& v);
+    Vector3D operator-(Vector3D& v);
+    Vector3D operator*(float scalar);
+    float dot(Vector3D& v);
+    Vector3D cross(Vector3D& v);
+    void rotate(float angleX, float angleY, float angleZ);
+    
+    float magnitude();
+    Vector3D normalize();
+    
+    Matrix toMatrix();
 };
 
 #endif /* VECTORS_H */

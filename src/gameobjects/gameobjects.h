@@ -9,6 +9,7 @@
 
 #include "../math/vectors.h"
 #include "./camera.h"
+#include "./terrain.h"
 
 class GameObject
 {
@@ -21,21 +22,24 @@ protected:
     std::vector<glm::vec2> uvs;
     std::vector<glm::vec3> normals;
     uint vertexBuffer;
+    float rotateX, rotateY, rotateZ;
 
     glm::vec3 centerOfMass;
 
-    Camera *cameraPtr = nullptr;
     Vector3D cameraOffset;
-
-    Vector3D forward;
+    Camera *cameraPtr = nullptr;
+    Terrain *terrainPtr = nullptr;
 
     /* Properties */
     float scaleValue;
 
-    void readObj(const std::string &objFileName);
     void drawModel();
+    void updateForwardVector();
+    void readObj(const std::string &objFileName);
 
 public:
+    Vector3D forward;
+
     GameObject(const char *objFileName);
     void attachCamera(Camera *camera) { cameraPtr = camera; };
 
@@ -45,10 +49,13 @@ public:
     void scale(float x, float y, float z);
 
     void display();
-
     float getX() { return x; };
     float getY() { return y; };
     float getZ() { return z; };
+
+    void setX(float value) { x = value; };
+    void setY(float value) { y = value; };
+    void setZ(float value) { z = value; };
 };
 
 #endif /* GAMEOBJECTS_H*/

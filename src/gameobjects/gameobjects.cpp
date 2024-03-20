@@ -6,26 +6,17 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
+#include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "./gameobjects.h"
 #include "../math/matrix.h"
 #include "../math/vectors.h"
 #include "../../include/objloader.hpp"
 
-GameObject::GameObject(const char *objFileName)
-{
-    x = 0.0;
-    y = 0.0;
-    z = 0.0;
-    scaleValue = 0.01;
-    cameraPtr = nullptr;
-    this->centerOfMass = glm::vec3(x, y, z);
-
-    bool res = loadOBJ(objFileName, vertices, uvs, normals);
-}
-
+/* PRIVATE */
 void GameObject::drawModel()
 {
     GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
@@ -48,6 +39,20 @@ void GameObject::drawModel()
     glEnd();
     glutSwapBuffers();
     glDisable(GL_LIGHTING);
+}
+
+/* PUBLIC */
+GameObject::GameObject(const char *objFileName)
+{
+    x = 0.0;
+    y = 0.0;
+    z = 0.0;
+    scaleValue = 0.01;
+    cameraPtr = nullptr;
+    this->centerOfMass = glm::vec3(x, y, z);
+    forward = Vector3D(1, 0, 0);
+
+    bool res = loadOBJ(objFileName, vertices, uvs, normals);
 }
 
 void GameObject::display()
@@ -203,4 +208,13 @@ void GameObject::rotateQuat(double angle, Vector3D axis)
 
     // Update attributes
     this->centerOfMass = glm::vec3(x, y, z);
+
+    // updateForward
+    glm::vec3 eulerAngles = glm::eulerAngles(rotationQuat);
+
+    float angleX =  eulerAngles.x;
+    float angleY = eulerAngles.y;
+    float angleZ =  eulerAngles.z;
+
+    forward.rotate(angleX, angleY, angleZ);
 }

@@ -18,6 +18,7 @@
 
 #include "./gameobjects/camera.h"
 #include "./gameobjects/gameobjects.h"
+#include "./gameobjects/terrain.h"
 
 #define MIN_8BIT 0;
 #define MAX_8BIT 255;
@@ -27,6 +28,7 @@
 GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
 Camera *camera;
 GameObject *car;
+Terrain *terrain;
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -98,12 +100,7 @@ void desenhar_eixos()
     glEnd();
 }
 
-// Terrain
-
-std::vector<std::vector<int>> altitude;
-int32_t terrain_width, terrain_depth;
-
-void init(void)
+void init(char **argv)
 {
     glClearColor(0.2, 0.2, 0.2, 0.0);
 
@@ -123,6 +120,8 @@ void init(void)
     car->scale(0.01, 0.01, 0.01);
 
     car->rotateQuat(-90, xAxis);
+
+    terrain = new Terrain(argv[1]);
 }
 
 void specialKeys(int key, int x, int y)
@@ -132,8 +131,7 @@ void specialKeys(int key, int x, int y)
     {
     case GLUT_KEY_UP:
     {
-        Vector3D forward(0.1, 0, 0);
-        car->translate(forward);
+        car->translate(car->forward * 0.1);
         break;
     }
     case GLUT_KEY_LEFT:
@@ -148,7 +146,7 @@ void specialKeys(int key, int x, int y)
         break;
     }
     case GLUT_KEY_DOWN:
-        camera->translate(0.0, -0.5, 0.0);
+        car->translate(car->forward * -0.1);
         break;
     }
     glutPostRedisplay();
@@ -161,13 +159,12 @@ void display(void)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
-
+    desenhar_luz();
 
     car->display();
+    terrain->drawTerrain();
 
-    desenhar_luz();
     desenhar_eixos();
-    // desenhar_terreno();
 
     glutSwapBuffers();
 }
@@ -196,8 +193,7 @@ int main(int argc, char **argv)
 
     /* Creating Objects */
     /* Reading Terrain File */
-    load_file(argv[1]);
-    init();
+    init(argv);
 
     glutDisplayFunc(display);
     glutSpecialFunc(specialKeys);
