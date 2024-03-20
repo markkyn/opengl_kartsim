@@ -61,6 +61,8 @@ void atualizarPosicoesLuzes() {
 
 void iluminar()
 {
+    glEnable(GL_LIGHTING);
+    //atualizarPosicoesLuzes();
     GLfloat light0_diffuse[] = {0.1, 0.1, 0.1, 1.0};
 
     glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
@@ -82,6 +84,7 @@ void iluminar()
 
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
+    glEnable(GL_LIGHT2);
 }
 
 void desenhar_luz()
@@ -185,11 +188,12 @@ void display(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
     desenhar_luz();
 
     camera->display();
+
     iluminar();
+    
     car->display();
     terrain->drawTerrain();
 

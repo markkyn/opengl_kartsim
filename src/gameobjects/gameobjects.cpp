@@ -30,15 +30,18 @@ void GameObject::drawModel()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 
     glEnable(GL_LIGHTING);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glBegin(GL_TRIANGLES); // Mudar para GL_TRIANGLES, GL_LINES, etc., conforme necessário.
 
-    for (auto &vertex : vertices)
-        glVertex3f(vertex.x, vertex.y + this->y, vertex.z);
+    for (size_t i = 0; i < vertices.size(); ++i)
+    {
+        glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+        glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
+    }
     glEnd();
-    glutSwapBuffers();
     glDisable(GL_LIGHTING);
+
+    glPopAttrib();
 }
 
 void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
@@ -54,11 +57,13 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
     float dotProd = projectedUp.dot(projectedNormal);
     float angle = acos(dotProd) * (180.0 / M_PI); // Convertendo para graus
 
-    if (projectedNormal.getX() > projectedUp.getX()) {
+    if (projectedNormal.getX() > projectedUp.getX())
+    {
         angle = -angle;
     }
 
-    if (std::abs(angle) > 0.01) {
+    if (std::abs(angle) > 0.01)
+    {
         Vector3D pitchAxis(0, 1, 0);
         this->rotateQuat(angle, pitchAxis);
     }
