@@ -1,47 +1,70 @@
 #include <iostream>
 #include <stdio.h>
-#include "terrain.h"
+#include <string.h>
+#include <fstream>
 
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 
-Terrain::Terrain()
+#include "terrain.h"
+
+Terrain::Terrain(char *filename)
 {
-    width = 0;
-    depth = 0;
+    this->width = 0;
+    this->depth = 0;
+    this->hightScale = 0.15;
+
+    this->offset_x = 0.0f;
+    this->offset_y = 0.0f;
+    this->offset_z = 0.0f;
+
+    this->loadFile(filename);
 }
 
-void Terrain::loadFile(char *file_name){
-    FILE* file = fopen(file_name, "r");
+void Terrain::loadFile(char *file_name)
+{
+    std::ifstream file(file_name);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Não foi possivel ler o arquivo" << std::endl;
+        return;
+    }
 
     std::string ppm_type;
+    file >> ppm_type;
 
-    fscanf(file, "%s", &ppm_type);
     if (ppm_type != "P2")
     {
+        std::cerr << "Formato Inválido, insira o pathing para o arquivo ppm do terreno." << std::endl;
         return;
     }
 
     int maxHeight = 0;
-    fscanf(file, "%d %d", &width, &depth);
+    file >> width >> depth;
+    file >> maxHeight;
 
-    topografy = (float *) malloc(sizeof(float) * width * depth);
+    float height = 0.0;
 
-    fscanf(file, "%d", &maxHeight );
+    /* Alocation */
+    topografy.resize(width);
+    for (int w = 0; w < width; w++)
+        topografy[w].resize(depth);
 
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < depth; j++)
+        {
+            file >> height;
+            topografy[i][j] = height * hightScale;
+        }
+    }
 
-    for(int px; px < width * depth; px++)
-        fscanf(file, "%d", topografy[depth * 10 + width] * this->hightScale);
-
-    fclose(file);
+    file.close();
 }
 
 void Terrain::drawTerrain()
 {
-    float offset_x = 4;
-    float offset_z = 4;
-    float offset_y = 4;
-
     GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
     GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
     GLfloat mat_shininess[] = {30.0};
@@ -58,28 +81,27 @@ void Terrain::drawTerrain()
 
     glBegin(GL_QUADS);
 
-    int escala = 1;
     for (int i = 0; i < width - 1; i++)
         for (int j = 0; j < depth - 1; j++)
         {
             glVertex3f(
                 i - offset_x,
-                altitude[i][j] - offset_y,
+                topografy[i][j],
                 j - offset_z);
 
             glVertex3f(
                 i + 1 - offset_x,
-                altitude[i + 1][j] - offset_z,
-                j - offset_y);
+                topografy[i + 1][j],
+                j - offset_z);
 
             glVertex3f(
                 i + 1 - offset_x,
-                altitude[i + 1][j + 1] - offset_y,
+                topografy[i + 1][j + 1],
                 j + 1 - offset_z);
 
             glVertex3f(
                 i - offset_x,
-                altitude[i][j + 1] - offset_y,
+                topografy[i][j + 1],
                 j + 1 - offset_z);
         }
     glEnd();
@@ -88,20 +110,23 @@ void Terrain::drawTerrain()
     glPopAttrib();
 }
 
-Vector3D normalAt(int x, int y)
+Vector3D Terrain::normalAt(int x, int y)
 {
-    this->heightAt(x, y);
-    
-    Vector3D gradient(
-        x - x0,
-        y - y0,
-        z - z0
-    );
+    if (x <= 0 || x >= width - 1 || y <= 0 || y >= depth - 1)
+    {
+        return Vector3D(0, 0, 1);
+    }
 
+    Vector3D v1(x - 1, y, topografy[y][x - 1] * hightScale);
+    Vector3D v2(x + 1, y, topografy[y][x + 1] * hightScale);
+    Vector3D v3(x, y - 1, topografy[y - 1][x] * hightScale);
+    Vector3D v4(x, y + 1, topografy[y + 1][x] * hightScale);
 
-    Vector3D position(
+    Vector3D diag1 = v2 - v1;
+    Vector3D diag2 = v4 - v3;
 
-    );
+    Vector3D normal = diag1.cross(diag2);
+    normal = normal.normalize(); // Normalizar o vetor resultante
 
-    Vector3D normal = position * gradient;
+    return normal;
 }

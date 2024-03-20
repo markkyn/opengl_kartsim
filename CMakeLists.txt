@@ -24,6 +24,7 @@ add_executable(
     ../src/math/matrix.cpp
     ../src/math/vectors.cpp
     ../src/gameobjects/camera.cpp
+    ../src/gameobjects/terrain.cpp
     ../src/gameobjects/gameobjects.cpp
     ../src/graphics/objloader.cpp
 )

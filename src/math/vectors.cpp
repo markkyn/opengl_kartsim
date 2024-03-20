@@ -1,3 +1,6 @@
+#include <cmath> 
+#include <algorithm>
+
 #include "./vectors.h"
 
 /* ructors */
@@ -97,4 +100,17 @@ Matrix Vector3D::toMatrix()
     matrix.setValue(2, 0, this->z); // z
 
     return matrix;
+}
+
+float Vector3D::angleBetween(Vector3D vector)
+{
+    float dotProd = this->dot(vector);
+    float magA = this->magnitude(); 
+    float magB = vector.magnitude();
+
+    float cosTheta = dotProd / (magA * magB);
+
+    cosTheta = std::max(-1.0f, std::min(1.0f, cosTheta));
+
+    return acos(cosTheta);
 }

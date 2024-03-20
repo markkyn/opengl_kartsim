@@ -16,6 +16,8 @@ class GameObject
 protected:
     /* Global Position */
     float x, y, z;
+    Vector3D forward;
+    Vector3D up;
 
     /* Points */
     std::vector<glm::vec3> vertices;
@@ -34,14 +36,14 @@ protected:
     float scaleValue;
 
     void drawModel();
-    void updateForwardVector();
     void readObj(const std::string &objFileName);
+    void alignWithTerrainNormal(Vector3D normalAtPoint);
 
 public:
-    Vector3D forward;
-
     GameObject(const char *objFileName);
+
     void attachCamera(Camera *camera) { cameraPtr = camera; };
+    void attachTerrain(Terrain *terrain) { terrainPtr = terrain; };
 
     void translate(Vector3D to_pos);
     void rotate(float x, float y, float z);
@@ -56,6 +58,9 @@ public:
     void setX(float value) { x = value; };
     void setY(float value) { y = value; };
     void setZ(float value) { z = value; };
+    Vector3D getForward() { return forward; };
+
+
 };
 
 #endif /* GAMEOBJECTS_H*/

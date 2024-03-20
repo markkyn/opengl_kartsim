@@ -35,10 +35,33 @@ void GameObject::drawModel()
     glBegin(GL_TRIANGLES); // Mudar para GL_TRIANGLES, GL_LINES, etc., conforme necessário.
 
     for (auto &vertex : vertices)
-        glVertex3f(vertex.x, vertex.y, vertex.z);
+        glVertex3f(vertex.x, vertex.y + this->y, vertex.z);
     glEnd();
     glutSwapBuffers();
     glDisable(GL_LIGHTING);
+}
+
+void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
+{
+    Vector3D globalUp(0, 1, 0);
+
+    Vector3D projectedNormal(normalAtPoint.getX(), 0, normalAtPoint.getZ());
+    Vector3D projectedUp(globalUp.getX(), 0, globalUp.getZ());
+
+    projectedNormal = projectedNormal.normalize();
+    projectedUp = projectedUp.normalize();
+
+    float dotProd = projectedUp.dot(projectedNormal);
+    float angle = acos(dotProd) * (180.0 / M_PI); // Convertendo para graus
+
+    if (projectedNormal.getX() > projectedUp.getX()) {
+        angle = -angle;
+    }
+
+    if (std::abs(angle) > 0.01) {
+        Vector3D pitchAxis(0, 1, 0);
+        this->rotateQuat(angle, pitchAxis);
+    }
 }
 
 /* PUBLIC */
@@ -48,15 +71,31 @@ GameObject::GameObject(const char *objFileName)
     y = 0.0;
     z = 0.0;
     scaleValue = 0.01;
+
     cameraPtr = nullptr;
+    terrainPtr = nullptr;
+
     this->centerOfMass = glm::vec3(x, y, z);
     forward = Vector3D(1, 0, 0);
+    up = Vector3D(1, 0, 0);
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 }
 
 void GameObject::display()
 {
+
+    if (terrainPtr)
+    {
+        this->setY(
+            terrainPtr->heightAt(
+                (int)this->x, (int)this->z) +
+            0.5f);
+        terrainPtr->drawTerrain();
+
+        this->alignWithTerrainNormal(
+            terrainPtr->normalAt((int)x, (int)z));
+    }
 
     /* Attached Camera */
     if (cameraPtr)
@@ -71,7 +110,7 @@ void GameObject::display()
         cameraPtr->setZ(this->getZ() + cameraOffsetZ);
 
         float lookOffsetX = 0.0f;
-        float lookOffsetY = 0.0f;
+        float lookOffsetY = 1.0f;
         float lookOffsetZ = 0.0f;
 
         /* LookAt */
@@ -80,8 +119,6 @@ void GameObject::display()
             this->y + lookOffsetY,
             this->z + lookOffsetZ);
         cameraPtr->lookAt(lookAtCar);
-
-        cameraPtr->display();
     }
 
     this->drawModel();
@@ -212,9 +249,9 @@ void GameObject::rotateQuat(double angle, Vector3D axis)
     // updateForward
     glm::vec3 eulerAngles = glm::eulerAngles(rotationQuat);
 
-    float angleX =  eulerAngles.x;
+    float angleX = eulerAngles.x;
     float angleY = eulerAngles.y;
-    float angleZ =  eulerAngles.z;
+    float angleZ = eulerAngles.z;
 
     forward.rotate(angleX, angleY, angleZ);
 }

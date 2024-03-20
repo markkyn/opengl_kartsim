@@ -111,17 +111,18 @@ void init(char **argv)
 
     /* Camera */
     camera = new Camera(4, 2, 3);
+    /* Terrain */
+    terrain = new Terrain(argv[1]);
 
     /* GameObj = Car */
     car = new GameObject("../assets/car_formula.obj");
 
     car->attachCamera(camera);
-
+    car->attachTerrain(terrain);
     car->scale(0.01, 0.01, 0.01);
 
     car->rotateQuat(-90, xAxis);
 
-    terrain = new Terrain(argv[1]);
 }
 
 void specialKeys(int key, int x, int y)
@@ -131,7 +132,7 @@ void specialKeys(int key, int x, int y)
     {
     case GLUT_KEY_UP:
     {
-        car->translate(car->forward * 0.1);
+        car->translate(car->getForward() * 0.1);
         break;
     }
     case GLUT_KEY_LEFT:
@@ -146,7 +147,7 @@ void specialKeys(int key, int x, int y)
         break;
     }
     case GLUT_KEY_DOWN:
-        car->translate(car->forward * -0.1);
+        car->translate(car->getForward() * -0.1);
         break;
     }
     glutPostRedisplay();
@@ -161,8 +162,16 @@ void display(void)
     glLightfv(GL_LIGHT1, GL_POSITION, luz_pontual);
     desenhar_luz();
 
+    camera->display();
     car->display();
     terrain->drawTerrain();
+
+    std::cout << "Height At (" << car->getX() << "," << car->getZ() << ") = " << terrain->heightAt(car->getX(), car->getZ()) << std::endl;
+    std::cout << "Normal At (" << car->getX() << "," << car->getZ() << ") = (" 
+        << terrain->normalAt(car->getX(), car->getZ()).getX() << " , "
+        << terrain->normalAt(car->getX(), car->getZ()).getY() << " , "
+        << terrain->normalAt(car->getX(), car->getZ()).getZ() << " , "
+        << ")"<< std::endl;
 
     desenhar_eixos();
 

@@ -1,26 +1,27 @@
-#ifndef TERRAIN_H  
+#ifndef TERRAIN_H
 #define TERRAIN_H
 
 #include <iostream>
 #include <vector>
-#include "vectors.h"
-
+#include "../math/vectors.h"
 
 class Terrain
 {
 private:
     int width, depth;
     float hightScale;
-    float* topografy;
+    std::vector<std::vector<float>> topografy;
+    float offset_x, offset_y, offset_z;
+
+    void loadFile(char *file_name);
 
 public:
-    Terrain();
+    Terrain(char *filename);
     ~Terrain();
 
     Vector3D normalAt(int x, int y);
-    float heightAt(int x, int y);
-    void  drawTerrain();
-    void  loadFile(char *file_name);
+    float heightAt(int x, int y) { return topografy[x][y]; };
+    void drawTerrain();
 };
 
 #endif /* TERRAIN_H */
