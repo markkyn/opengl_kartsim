@@ -99,7 +99,7 @@ void GameObject::display()
     {
         this->setY(
             terrainPtr->heightAt(
-                (int)this->x, (int)this->z) +
+                this->x, this->z) +
             0.5f);
         terrainPtr->drawTerrain();
 

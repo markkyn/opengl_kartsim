@@ -19,7 +19,7 @@ public:
     Terrain(char *filename);
     ~Terrain();
 
-    Vector3D normalAt(int x, int y);
+    Vector3D normalAt(float x, float y);
     float heightAt(float x, float y);
     void drawTerrain();
 };

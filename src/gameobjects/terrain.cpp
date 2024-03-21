@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <GL/gl.h>
+#include <glm/glm.hpp>
 #include <GL/freeglut.h>
 
 #include "terrain.h"
@@ -77,12 +78,14 @@ void Terrain::drawTerrain()
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 
-
     glBegin(GL_QUADS);
 
     for (int i = 0; i < width - 1; i++)
         for (int j = 0; j < depth - 1; j++)
         {
+            Vector3D normal = normalAt(i, j); 
+            glNormal3f(normal.getX(), normal.getY(), normal.getZ());
+
             glVertex3f(
                 i - offset_x,
                 topografy[i][j],
@@ -108,33 +111,33 @@ void Terrain::drawTerrain()
     glPopAttrib();
 }
 
-Vector3D Terrain::normalAt(int x, int y)
-{
-    if (x <= 0 || x >= width - 1 || y <= 0 || y >= depth - 1)
-    {
-        return Vector3D(0, 1, 0);
+Vector3D Terrain::normalAt(float x, float y) {
+    float delta = 0.1f;
+    float heightCenter = heightAt(x, y);
+    float heightXPlus = heightAt(x + delta, y);
+    float heightYPlus = heightAt(x, y + delta);
+
+    glm::vec3 vecX(delta, heightXPlus - heightCenter, 0);
+    glm::vec3 vecY(0, heightYPlus - heightCenter, delta);
+
+    glm::vec3 normal = glm::cross(vecX, vecY);
+    normal = glm::normalize(normal);
+
+    if (normal.y < 0) {
+        normal = -normal;
     }
 
-    Vector3D v1(x - 1, y, topografy[y][x - 1] * hightScale);
-    Vector3D v2(x + 1, y, topografy[y][x + 1] * hightScale);
-    Vector3D v3(x, y - 1, topografy[y - 1][x] * hightScale);
-    Vector3D v4(x, y + 1, topografy[y + 1][x] * hightScale);
-
-    Vector3D diag1 = v2 - v1;
-    Vector3D diag2 = v4 - v3;
-
-    Vector3D normal = diag1.cross(diag2);
-    normal = normal.normalize(); // Normalizar o vetor resultante
-
-    return normal;
+    return Vector3D(normal.x, normal.y, normal.z);
 }
 
-float Terrain::heightAt(float x, float y) {
+float Terrain::heightAt(float x, float y)
+{
     // Type casting float -> int
     int x0 = static_cast<int>(x);
     int y0 = static_cast<int>(y);
 
-    if (x0 < 0 || x0 >= width - 1 || y0 < 0 || y0 >= depth - 1) {
+    if (x0 < 0 || x0 >= width - 1 || y0 < 0 || y0 >= depth - 1)
+    {
         return 0;
     }
 
