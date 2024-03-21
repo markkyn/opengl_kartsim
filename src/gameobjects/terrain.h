@@ -20,7 +20,7 @@ public:
     ~Terrain();
 
     Vector3D normalAt(int x, int y);
-    float heightAt(int x, int y) { return topografy[x][y]; };
+    float heightAt(float x, float y);
     void drawTerrain();
 };
 

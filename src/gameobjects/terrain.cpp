@@ -128,3 +128,26 @@ Vector3D Terrain::normalAt(int x, int y)
 
     return normal;
 }
+
+float Terrain::heightAt(float x, float y) {
+    // Type casting float -> int
+    int x0 = static_cast<int>(x);
+    int y0 = static_cast<int>(y);
+
+    if (x0 < 0 || x0 >= width - 1 || y0 < 0 || y0 >= depth - 1) {
+        return 0;
+    }
+
+    // position diff
+    float dx = x - x0;
+    float dy = y - y0;
+
+    // Interpolation
+    float top = topografy[x0][y0] * (1 - dx) + topografy[x0 + 1][y0] * dx;
+    float bottom = topografy[x0][y0 + 1] * (1 - dx) + topografy[x0 + 1][y0 + 1] * dx;
+
+    // Getting Height via interpolation
+    float height = top * (1 - dy) + bottom * dy;
+
+    return height;
+}
