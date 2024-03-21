@@ -26,8 +26,7 @@
 #define DEBUG false
 
 GLfloat luz_pontual[] = {0.3, 0.5, 0.5, 1.0};
-GLfloat light0_position[] = {0.0, 1.0, 0.0, 0.0};
-GLfloat light2_position[] = {-1.0, 1.0, -1.0, 1, 0};
+GLfloat light2_position[] = {5, 1.0, 5.0, 1, 1.0};
 
 Camera *camera;
 GameObject *car;
@@ -38,35 +37,10 @@ Vector3D yAxis(0.0f, 1.0f, 0.0f);
 Vector3D zAxis(0.0f, 0.0f, 1.0f);
 Vector3D xAxis(1.0f, 0.0f, 0.0f);
 
-void atualizarPosicoesLuzes() {
-    Vector3D posicaoCamera = camera->getPosition();
-    
-    Vector3D light0_pos_world  = camera->applyTransform(Vector3D(light0_position[0], light0_position[1], light0_position[2]));
-    Vector3D luz_pontual_world = camera->applyTransform(Vector3D(luz_pontual[0], luz_pontual[1], luz_pontual[2]));
-    Vector3D light2_pos_world  = camera->applyTransform(Vector3D(light2_position[0], light2_position[1], light2_position[2]));
-
-    light0_position[0] = light0_pos_world.getX();
-    light0_position[1] = light0_pos_world.getY();
-    light0_position[2] = light0_pos_world.getZ();
-
-    luz_pontual[0] = luz_pontual_world.getX();
-    luz_pontual[1] = luz_pontual_world.getY();
-    luz_pontual[2] = luz_pontual_world.getZ();
-
-    light2_position[0] = light2_pos_world.getX();
-    light2_position[1] = light2_pos_world.getY();
-    light2_position[2] = light2_pos_world.getZ();
-}
-
 
 void iluminar()
 {
     glEnable(GL_LIGHTING);
-    //atualizarPosicoesLuzes();
-    GLfloat light0_diffuse[] = {0.1, 0.1, 0.1, 1.0};
-
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
 
     GLfloat light1_diffuse[] = {0.6, 0.6, 0.6, 1.0};
     GLfloat light1_specular[] = {1.0, 1.0, 1.0, 1.0};
@@ -82,7 +56,7 @@ void iluminar()
     glLightfv(GL_LIGHT2, GL_SPECULAR, light1_specular);
     glLightfv(GL_LIGHT2, GL_AMBIENT, light1_ambient);
 
-    glEnable(GL_LIGHT0);
+    //glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHT2);
 }
@@ -188,23 +162,16 @@ void display(void)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    desenhar_luz();
+    //desenhar_luz();
 
     camera->display();
 
-    iluminar();
     
     car->display();
     terrain->drawTerrain();
-
-    std::cout << "Height At (" << car->getX() << "," << car->getZ() << ") = " << terrain->heightAt(car->getX(), car->getZ()) << std::endl;
-    std::cout << "Normal At (" << car->getX() << "," << car->getZ() << ") = ("
-              << terrain->normalAt(car->getX(), car->getZ()).getX() << " , "
-              << terrain->normalAt(car->getX(), car->getZ()).getY() << " , "
-              << terrain->normalAt(car->getX(), car->getZ()).getZ() << " , "
-              << ")" << std::endl;
-
     desenhar_eixos();
+
+    iluminar();
 
     glutSwapBuffers();
 }

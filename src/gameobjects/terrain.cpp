@@ -112,7 +112,7 @@ Vector3D Terrain::normalAt(int x, int y)
 {
     if (x <= 0 || x >= width - 1 || y <= 0 || y >= depth - 1)
     {
-        return Vector3D(0, 0, 1);
+        return Vector3D(0, 1, 0);
     }
 
     Vector3D v1(x - 1, y, topografy[y][x - 1] * hightScale);
