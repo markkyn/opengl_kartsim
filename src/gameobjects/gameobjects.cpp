@@ -16,6 +16,10 @@
 #include "../math/vectors.h"
 #include "../../include/objloader.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../graphics/stb_image.h"
+
+
 /* PRIVATE */
 void GameObject::drawModel()
 {
@@ -36,6 +40,7 @@ void GameObject::drawModel()
     for (size_t i = 0; i < vertices.size(); ++i)
     {
         glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+        // texturas aqui?
         glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
     }
     glEnd();
@@ -75,7 +80,7 @@ GameObject::GameObject(const char *objFileName)
     x = 0.0;
     y = 0.0;
     z = 0.0;
-    scaleValue = 0.01;
+    scaleValue = 1.0; //0.01; (alterei para 1.0 pois consertei o tamanho exagerado do modelo3D, e retirei o scale(0.01) do main)
 
     cameraPtr = nullptr;
     terrainPtr = nullptr;

@@ -37,6 +37,16 @@ Vector3D yAxis(0.0f, 1.0f, 0.0f);
 Vector3D zAxis(0.0f, 0.0f, 1.0f);
 Vector3D xAxis(1.0f, 0.0f, 0.0f);
 
+// controle das special keys
+int is_up_pressed = 0;
+int is_down_pressed = 0;
+int is_left_pressed = 0;
+int is_right_pressed = 0;
+
+// aceleracao pra frente e pra tras do carro
+float ACELERACAO_MAX = 0.25;
+float aceleracao = 0.0;
+
 
 void iluminar()
 {
@@ -119,41 +129,51 @@ void init(char **argv)
     terrain = new Terrain(argv[1]);
 
     /* GameObj = Car */
-    car = new GameObject("../assets/car_formula.obj");
+    car = new GameObject("../assets/carro.obj");
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
-    car->scale(0.01, 0.01, 0.01);
-
-    car->rotateQuat(-90, xAxis);
 }
 
-void specialKeys(int key, int x, int y)
-{
-    float angulo = 2 * M_PI / 180;
-    switch (key)
-    {
-    case GLUT_KEY_UP:
-    {
-        car->translate(car->getForward() * 0.1);
-        break;
-    }
-    case GLUT_KEY_LEFT:
-    {
-        car->rotateQuat(5, yAxis);
-        break;
-    }
-    case GLUT_KEY_RIGHT:
-    {
-        car->rotateQuat(-5, yAxis);
+void specialKeyPressed(int key, int x, int y){
+    if(key == GLUT_KEY_UP) is_up_pressed = 1;
+    if(key == GLUT_KEY_DOWN) is_down_pressed = 1;
+    if(key == GLUT_KEY_LEFT) is_left_pressed = 1;
+    if(key == GLUT_KEY_RIGHT) is_right_pressed = 1;
+}
 
-        break;
+void specialKeyReleased(int key, int x, int y){
+    if(key == GLUT_KEY_UP) is_up_pressed = 0;
+    if(key == GLUT_KEY_DOWN) is_down_pressed = 0;
+    if(key == GLUT_KEY_LEFT) is_left_pressed = 0;
+    if(key == GLUT_KEY_RIGHT) is_right_pressed = 0;
+}
+
+void handle_car_movement(){
+    if(is_up_pressed) aceleracao += 0.005;
+    if(is_down_pressed) aceleracao -= 0.005;
+
+    // clamp dos valores da aceleracao
+    if(aceleracao > ACELERACAO_MAX) aceleracao = ACELERACAO_MAX;
+    if(aceleracao < -ACELERACAO_MAX) aceleracao = -ACELERACAO_MAX;
+    
+    // controle da rotacao levando em consideracao a re (dando re roda ao contrario)
+    if(aceleracao < 0){
+        if(is_left_pressed) car->rotateQuat(-5, yAxis);
+        if(is_right_pressed) car->rotateQuat(5, yAxis);
     }
-    case GLUT_KEY_DOWN:
-        car->translate(car->getForward() * -0.1);
-        break;
+    else{
+        if(is_left_pressed) car->rotateQuat(5, yAxis);
+        if(is_right_pressed) car->rotateQuat(-5, yAxis);
     }
-    glutPostRedisplay();
+    
+    car->translate(car->getForward() * aceleracao);
+
+    // desaceleracao (fiz com *0.1 para nao depender do deltaTime, se tivesse feito com valores fixos e sem o deltaTime, poderia ter inconsistencias em fps mais baixos)
+    if(!is_up_pressed && !is_down_pressed){
+        if(aceleracao > 0.0) aceleracao -= aceleracao*0.1;
+        if(aceleracao < 0.0) aceleracao += -aceleracao*0.1;
+    }
 }
 
 void display(void)
@@ -188,6 +208,18 @@ void reshape(int w, int h)
     glLoadIdentity();
 }
 
+
+void gameloop(){
+    handle_car_movement();
+    glutPostRedisplay();
+}
+
+void timerFunc(int value){
+    gameloop();
+    glutTimerFunc(1000 / 60, timerFunc, 0); // Configura o próximo chamada da função timerFunc(), roda a 60fps
+}
+
+
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
@@ -203,10 +235,13 @@ int main(int argc, char **argv)
     init(argv);
 
     glutDisplayFunc(display);
-    glutSpecialFunc(specialKeys);
+    glutSpecialFunc(specialKeyPressed);
+    glutSpecialUpFunc(specialKeyReleased);
     glutReshapeFunc(reshape);
-
+    
+    glutTimerFunc(1000 / 60, timerFunc, 0); // 60 FPS
     glutMainLoop();
+    
 
     return 0;
 }
