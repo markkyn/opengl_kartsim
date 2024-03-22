@@ -16,21 +16,18 @@
 #include "../math/vectors.h"
 #include "../../include/objloader.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../graphics/stb_image.h"
+#include "stb_image.h"
 
 int image_width, image_height, channels;
 static GLuint textureID;
 
-
-
 /* PRIVATE */
 void GameObject::drawModel()
 {
-    //ativa textura
-	glEnable(GL_TEXTURE_2D);
+    // ativa textura
+    glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
 
     GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
     GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
@@ -84,23 +81,24 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
     }
 }
 
-void loadTexture(const char *textura){
+void loadTexture(const char *textura)
+{
     // load da textura
-    unsigned char* image = stbi_load(textura, &image_width, &image_height, &channels, 0);
+    unsigned char *image = stbi_load(textura, &image_width, &image_height, &channels, 0);
 
-    //declara um objeto de textura
-	glGenTextures(1, &textureID);
+    // declara um objeto de textura
+    glGenTextures(1, &textureID);
 
-    //cria e usa objetos de textura 
-	glBindTexture(GL_TEXTURE_2D, textureID);
+    // cria e usa objetos de textura
+    glBindTexture(GL_TEXTURE_2D, textureID);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-    //magnification e minification filters
+    // magnification e minification filters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    //define uma textura bidimensional
+    // define uma textura bidimensional
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
     stbi_image_free(image);
@@ -112,7 +110,7 @@ GameObject::GameObject(const char *objFileName, const char *textura)
     x = 0.0;
     y = 0.0;
     z = 0.0;
-    scaleValue = 1.0; //0.01; (alterei para 1.0 pois consertei o tamanho exagerado do modelo3D, e retirei o scale(0.01) do main)
+    scaleValue = 1.0; // 0.01; (alterei para 1.0 pois consertei o tamanho exagerado do modelo3D, e retirei o scale(0.01) do main)
 
     cameraPtr = nullptr;
     terrainPtr = nullptr;
@@ -120,7 +118,7 @@ GameObject::GameObject(const char *objFileName, const char *textura)
     this->centerOfMass = glm::vec3(x, y, z);
     forward = Vector3D(1, 0, 0);
     up = Vector3D(1, 0, 0);
-    
+
     /* Physics */
     direction = forward;
 

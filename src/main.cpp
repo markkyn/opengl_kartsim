@@ -20,6 +20,10 @@
 #include "./gameobjects/gameobjects.h"
 #include "./gameobjects/terrain.h"
 
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #define MIN_8BIT 0;
 #define MAX_8BIT 255;
 
