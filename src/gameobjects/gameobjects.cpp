@@ -84,6 +84,28 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
     }
 }
 
+void loadTexture(const char *textura){
+    // load da textura
+    unsigned char* image = stbi_load(textura, &image_width, &image_height, &channels, 0);
+
+    //declara um objeto de textura
+	glGenTextures(1, &textureID);
+
+    //cria e usa objetos de textura 
+	glBindTexture(GL_TEXTURE_2D, textureID);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+    //magnification e minification filters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    //define uma textura bidimensional
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+    stbi_image_free(image);
+}
+
 /* PUBLIC */
 GameObject::GameObject(const char *objFileName, const char *textura)
 {
@@ -104,25 +126,7 @@ GameObject::GameObject(const char *objFileName, const char *textura)
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 
-    // load da textura
-    unsigned char* image = stbi_load(textura, &image_width, &image_height, &channels, 0);
-
-    //declara um objeto de textura
-	glGenTextures(1, &textureID);
-
-    //cria e usa objetos de textura 
-	glBindTexture(GL_TEXTURE_2D, textureID);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-    //magnification e minification filters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    //define uma textura bidimensional
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-
-    stbi_image_free(image);
+    loadTexture(textura);
 }
 
 void GameObject::display()

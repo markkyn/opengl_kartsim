@@ -9,6 +9,10 @@
 
 #include "terrain.h"
 
+int terrain_texture_width, terrain_texture_height, terrain_texture_channels;
+static GLuint textureTerrainID;
+
+
 Terrain::Terrain(char *filename)
 {
     this->width = 0;
