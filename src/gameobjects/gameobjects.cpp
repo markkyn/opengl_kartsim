@@ -19,10 +19,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../graphics/stb_image.h"
 
+int image_width, image_height, channels;
+static GLuint textureID;
+
+
 
 /* PRIVATE */
 void GameObject::drawModel()
 {
+    //ativa textura
+	glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
     GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
     GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
     GLfloat mat_shininess[] = {30.0};
@@ -40,11 +49,12 @@ void GameObject::drawModel()
     for (size_t i = 0; i < vertices.size(); ++i)
     {
         glNormal3f(normals[i].x, normals[i].y, normals[i].z);
-        // texturas aqui?
+        glTexCoord2f(uvs[i].x, uvs[i].y);
         glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
     }
     glEnd();
     glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
 
     glPopAttrib();
 }
@@ -75,7 +85,7 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
 }
 
 /* PUBLIC */
-GameObject::GameObject(const char *objFileName)
+GameObject::GameObject(const char *objFileName, const char *textura)
 {
     x = 0.0;
     y = 0.0;
@@ -91,10 +101,28 @@ GameObject::GameObject(const char *objFileName)
     
     /* Physics */
     direction = forward;
-    
-
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
+
+    // load da textura
+    unsigned char* image = stbi_load(textura, &image_width, &image_height, &channels, 0);
+
+    //declara um objeto de textura
+	glGenTextures(1, &textureID);
+
+    //cria e usa objetos de textura 
+	glBindTexture(GL_TEXTURE_2D, textureID);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+    //magnification e minification filters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    //define uma textura bidimensional
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+    stbi_image_free(image);
 }
 
 void GameObject::display()

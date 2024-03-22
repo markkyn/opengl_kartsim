@@ -45,7 +45,7 @@ protected:
     Vector3D direction; // wheel direction 
 
 public:
-    GameObject(const char *objFileName);
+    GameObject(const char *objFileName, const char *textura);
 
     void attachCamera(Camera *camera) { cameraPtr = camera; };
     void attachTerrain(Terrain *terrain) { terrainPtr = terrain; };

@@ -118,7 +118,6 @@ void init(char **argv)
 {
     glClearColor(0.2, 0.2, 0.2, 0.0);
 
-
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
 
@@ -129,7 +128,7 @@ void init(char **argv)
     terrain = new Terrain(argv[1]);
 
     /* GameObj = Car */
-    car = new GameObject("../assets/carro.obj");
+    car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
@@ -157,8 +156,8 @@ void handle_car_movement(){
     if(aceleracao > ACELERACAO_MAX) aceleracao = ACELERACAO_MAX;
     if(aceleracao < -ACELERACAO_MAX) aceleracao = -ACELERACAO_MAX;
     
-    // controle da rotacao levando em consideracao a re (dando re roda ao contrario)
-    if(aceleracao < 0){
+    // controle da rotacao levando em consideracao a re (dando re roda ao contrario) (nao compara exatamente com 0 pq a desaceleracao eh uma interpolacao)
+    if(aceleracao < -0.01){
         if(is_left_pressed) car->rotateQuat(-5, yAxis);
         if(is_right_pressed) car->rotateQuat(5, yAxis);
     }
@@ -241,7 +240,6 @@ int main(int argc, char **argv)
     
     glutTimerFunc(1000 / 60, timerFunc, 0); // 60 FPS
     glutMainLoop();
-    
 
     return 0;
 }
