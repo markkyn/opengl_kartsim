@@ -129,7 +129,8 @@ void init(char **argv)
     camera = new Camera(4, 2, 3);    
 
     /* Terrain */
-    terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+    // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+    terrain = new Terrain(argv[1], "../assets/textura_terreno_png.png");
 
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");
@@ -172,10 +173,10 @@ void handle_car_movement(){
     
     car->translate(car->getForward() * aceleracao);
 
-    // desaceleracao (fiz com *0.1 para nao depender do deltaTime, se tivesse feito com valores fixos e sem o deltaTime, poderia ter inconsistencias em fps mais baixos)
+    // desaceleracao (fiz com *0.1 para ir diminuindo gradualmente e n ter chance de diminuir dms alem do 0 e ficar um valor negativo)
     if(!is_up_pressed && !is_down_pressed){
-        if(aceleracao > 0.0) aceleracao -= aceleracao*0.1;
-        if(aceleracao < 0.0) aceleracao += -aceleracao*0.1;
+        if(aceleracao > 0.0) aceleracao -= aceleracao*0.05;
+        if(aceleracao < 0.0) aceleracao += -aceleracao*0.05;
     }
 }
 
