@@ -48,7 +48,7 @@ int is_left_pressed = 0;
 int is_right_pressed = 0;
 
 // aceleracao pra frente e pra tras do carro
-float ACELERACAO_MAX = 0.25;
+float ACELERACAO_MAX = 0.4;
 float aceleracao = 0.0;
 
 
@@ -129,7 +129,7 @@ void init(char **argv)
     camera = new Camera(4, 2, 3);    
 
     /* Terrain */
-    terrain = new Terrain(argv[1]);
+    terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
 
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");

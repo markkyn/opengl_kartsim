@@ -16,12 +16,13 @@ private:
     void loadFile(char *file_name);
 
 public:
-    Terrain(char *filename);
+    Terrain(char *filename, const char *textura);
     ~Terrain();
 
     Vector3D normalAt(float x, float y);
     float heightAt(float x, float y);
     void drawTerrain();
+    void loadTerrainTexture(const char *textura);
 };
 
 #endif /* TERRAIN_H */

@@ -7,13 +7,39 @@
 #include <glm/glm.hpp>
 #include <GL/freeglut.h>
 
+#include "stb_image.h"
+
 #include "terrain.h"
 
 int terrain_texture_width, terrain_texture_height, terrain_texture_channels;
 static GLuint textureTerrainID;
 
 
-Terrain::Terrain(char *filename)
+void Terrain::loadTerrainTexture(const char *textura)
+{
+    // load da textura
+    unsigned char *terrain_image = stbi_load(textura, &terrain_texture_width, &terrain_texture_height, &terrain_texture_channels, 0);
+
+    // declara um objeto de textura
+    glGenTextures(1, &textureTerrainID);
+
+    // cria e usa objetos de textura
+    glBindTexture(GL_TEXTURE_2D, textureTerrainID);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+    // magnification e minification filters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // define uma textura bidimensional
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, terrain_texture_width, terrain_texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, terrain_image);
+
+    stbi_image_free(terrain_image);
+}
+
+
+Terrain::Terrain(char *filename, const char *textura)
 {
     this->width = 0;
     this->depth = 0;
@@ -24,6 +50,7 @@ Terrain::Terrain(char *filename)
     this->offset_z = 0.0f;
 
     this->loadFile(filename);
+    loadTerrainTexture(textura);
 }
 
 void Terrain::loadFile(char *file_name)
@@ -70,6 +97,11 @@ void Terrain::loadFile(char *file_name)
 
 void Terrain::drawTerrain()
 {
+    // ativa textura
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+    glBindTexture(GL_TEXTURE_2D, textureTerrainID);
+
     GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
     GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
     GLfloat mat_shininess[] = {30.0};
@@ -89,6 +121,10 @@ void Terrain::drawTerrain()
         {
             Vector3D normal = normalAt(i, j); 
             glNormal3f(normal.getX(), normal.getY(), normal.getZ());
+            
+            float uv_x = float(i)/(width-2); // vai de 0.0 a 1.0 baseado no quao grande estah o I, pq o I vai ate (width-2) no maximo
+            float uv_y = float(j)/(depth-2);
+            glTexCoord2f(uv_x , uv_y);
 
             glVertex3f(
                 i - offset_x,
@@ -111,6 +147,7 @@ void Terrain::drawTerrain()
                 j + 1 - offset_z);
         }
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     glPopAttrib();
 }

@@ -106,8 +106,16 @@ void display(void)
    glPushAttrib(GL_CURRENT_BIT);
    
    //preenche vetores com informações sobre os vértices 
-   static GLfloat vertices[] = {-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0, -0.5, 0.5, 0.0};
-   static GLfloat texels[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ,1.0, 0.0};
+   static GLfloat vertices[] = {-0.5, -0.5, 
+                                 0.0, 0.5, 
+                                 -0.5, 0.0, 
+                                 0.5, 0.5, 
+                                 0.0, -0.5, 
+                                 0.5, 0.0};
+   static GLfloat texels[] = {0.0, 0.0, 
+                              0.0, 1.0, 
+                              1.0, 1.0 ,
+                              1.0, 0.0};
 
    //ativa arrays que serão usados
    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
