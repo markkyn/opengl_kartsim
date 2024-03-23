@@ -40,6 +40,9 @@ public:
 
     Matrix toMatrix();
     float angleBetween(Vector3D vector);
+    void alignTo(Vector3D vector);
+
+    bool isZero() { return (x == 0.0f && y == 0.0f && z == 0.0f); };
 };
 
 #endif /* VECTORS_H */
