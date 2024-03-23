@@ -116,21 +116,30 @@ void Terrain::drawTerrain()
 }
 
 Vector3D Terrain::normalAt(float x, float y) {
+    // Offset para calcular as alturas dos pontos vizinhos
     float delta = 0.1f;
+
+    // Obtém as alturas dos pontos vizinhos
     float heightCenter = heightAt(x, y);
     float heightXPlus = heightAt(x + delta, y);
     float heightYPlus = heightAt(x, y + delta);
 
+    // Calcula os vetores representando as diferenças de altura em relação ao ponto central
     glm::vec3 vecX(delta, heightXPlus - heightCenter, 0);
     glm::vec3 vecY(0, heightYPlus - heightCenter, delta);
 
-    glm::vec3 normal = glm::cross(vecX, vecY);
+    // Calcula o produto vetorial dos vetores para obter a normal
+    glm::vec3 normal = glm::cross(vecY, vecX);
+
+    // Normaliza a normal resultante
     normal = glm::normalize(normal);
 
+    // Inverte a normal se estiver apontando para baixo
     if (normal.y < 0) {
         normal = -normal;
     }
 
+    // Retorna a normal como um objeto Vector3D
     return Vector3D(normal.x, normal.y, normal.z);
 }
 
