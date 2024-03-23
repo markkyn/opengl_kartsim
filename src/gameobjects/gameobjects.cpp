@@ -29,9 +29,9 @@ void GameObject::drawModel()
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
-    GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
-    GLfloat mat_shininess[] = {30.0};
+    GLfloat mat_specular[] = {1.0, 1.0, 1, 1.0};
+    GLfloat mat_diffuse[] = {1.0, 1, 1, 1.0};
+    GLfloat mat_shininess[] = {50.0};
 
     glPushAttrib(GL_LIGHTING_BIT);
 
@@ -40,18 +40,20 @@ void GameObject::drawModel()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 
     glEnable(GL_LIGHTING);
-
+       
     glBegin(GL_TRIANGLES); // Mudar para GL_TRIANGLES, GL_LINES, etc., conforme necessário.
 
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        glNormal3f(normals[i].x, normals[i].y, normals[i].z);
+        glNormal3f(normals[i].x, normals[i].y+ this->y, normals[i].z);
         glTexCoord2f(uvs[i].x, uvs[i].y);
         glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
     }
     glEnd();
-    glDisable(GL_LIGHTING);
+
+
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 
     glPopAttrib();
 }
@@ -146,13 +148,25 @@ void GameObject::display()
     if (cameraPtr)
     {
         /* CameraPos */
-        float cameraOffsetX = -4.0f;
-        float cameraOffsetY = 4.0f;
-        float cameraOffsetZ = 0.0f;
 
-        cameraPtr->setX(this->getX() + cameraOffsetX);
-        cameraPtr->setY(this->getY() + cameraOffsetY);
-        cameraPtr->setZ(this->getZ() + cameraOffsetZ);
+        /* Define diretcion by multiplying*/
+        float cameraOffsetX_dir = 2;
+        float cameraOffsetZ_dir = 2;
+
+        /* Define Height by sub */
+        float cameraOffsetX = 2;
+        float cameraOffsetY = 2;
+        float cameraOffsetZ = 2;
+
+        Vector3D cameraPos = Vector3D(
+            centerOfMass.x - (forward.getX() * cameraOffsetX_dir),
+            centerOfMass.y - (forward.getY() - cameraOffsetY),
+            centerOfMass.z - (forward.getZ() * cameraOffsetZ_dir)
+        );
+
+        cameraPtr->setX(cameraPos.getX());
+        cameraPtr->setY(cameraPos.getY());
+        cameraPtr->setZ(cameraPos.getZ());
 
         float lookOffsetX = 0.0f;
         float lookOffsetY = 1.0f;
