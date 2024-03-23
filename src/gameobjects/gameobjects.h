@@ -36,13 +36,14 @@ protected:
     float scaleValue;
 
     void drawModel();
-    void readObj(const std::string &objFileName);
+    // void readObj(const std::string &objFileName);
     void alignWithTerrainNormal(Vector3D normalAtPoint);
 
     /* Physics */
     float speed;
-    float acelleration;
-    Vector3D direction; // wheel direction 
+    float maxSpeed;
+    // float acelleration; // nao usado
+    Vector3D direction; // wheel direction
 
 public:
     GameObject(const char *objFileName, const char *textura);
@@ -67,12 +68,14 @@ public:
     Vector3D getForward() { return forward; };
 
     void setSpeed(float value) { speed = value; };
-    void setAcelleration(float value) { acelleration = value; };
+    void setMaxSpeed(float value) { maxSpeed = value; };
+    // void setAcelleration(float value) { acelleration = value; };
     
     float getSpeed() { return speed; };
-    float getAcelleration() { return acelleration; };
+    float getMaxSpeed() { return maxSpeed; };
+    // float getAcelleration() { return acelleration; };
 
-    void acellerate();
+    // void acellerate();
 
 
 };

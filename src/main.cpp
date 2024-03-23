@@ -47,9 +47,9 @@ int is_down_pressed = 0;
 int is_left_pressed = 0;
 int is_right_pressed = 0;
 
-// aceleracao pra frente e pra tras do carro
-float ACELERACAO_MAX = 0.4;
-float aceleracao = 0.0;
+// carSpeed pra frente e pra tras do carro
+float MAX_SPEED = 0.4;
+float carSpeed = 0.0;
 
 
 void iluminar()
@@ -137,6 +137,9 @@ void init(char **argv)
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
+    car->setMaxSpeed(MAX_SPEED);
+
+    car->translate(Vector3D(27.0, 0.0, 12.5)); // posicao inicial do mapa
 }
 
 void specialKeyPressed(int key, int x, int y){
@@ -154,15 +157,15 @@ void specialKeyReleased(int key, int x, int y){
 }
 
 void handle_car_movement(){
-    if(is_up_pressed) aceleracao += 0.005;
-    if(is_down_pressed) aceleracao -= 0.005;
+    if(is_up_pressed) carSpeed += 0.005;
+    if(is_down_pressed) carSpeed -= 0.005;
 
-    // clamp dos valores da aceleracao
-    if(aceleracao > ACELERACAO_MAX) aceleracao = ACELERACAO_MAX;
-    if(aceleracao < -ACELERACAO_MAX) aceleracao = -ACELERACAO_MAX;
+    // clamp dos valores da carSpeed
+    if(carSpeed > MAX_SPEED) carSpeed = MAX_SPEED;
+    if(carSpeed < -MAX_SPEED) carSpeed = -MAX_SPEED;
     
     // controle da rotacao levando em consideracao a re (dando re roda ao contrario) (nao compara exatamente com 0 pq a desaceleracao eh uma interpolacao)
-    if(aceleracao < -0.01){
+    if(carSpeed < -0.01){
         if(is_left_pressed) car->rotateQuat(-5, yAxis);
         if(is_right_pressed) car->rotateQuat(5, yAxis);
     }
@@ -171,13 +174,15 @@ void handle_car_movement(){
         if(is_right_pressed) car->rotateQuat(-5, yAxis);
     }
     
-    car->translate(car->getForward() * aceleracao);
+    car->translate(car->getForward() * carSpeed);
 
     // desaceleracao (fiz com *0.1 para ir diminuindo gradualmente e n ter chance de diminuir dms alem do 0 e ficar um valor negativo)
     if(!is_up_pressed && !is_down_pressed){
-        if(aceleracao > 0.0) aceleracao -= aceleracao*0.05;
-        if(aceleracao < 0.0) aceleracao += -aceleracao*0.05;
+        if(carSpeed > 0.0) carSpeed -= carSpeed*0.05;
+        if(carSpeed < 0.0) carSpeed += -carSpeed*0.05;
     }
+
+    car->setSpeed(carSpeed);
 }
 
 void display(void)
@@ -230,7 +235,8 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glfwInit();
 
-    glutInitWindowSize(1920, 1080);
+    // glutInitWindowSize(1920, 1080);
+    glutInitWindowSize(1366, 762);
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Hello World");
 

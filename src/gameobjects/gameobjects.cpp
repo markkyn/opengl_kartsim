@@ -148,21 +148,19 @@ void GameObject::display()
     if (cameraPtr)
     {
         /* CameraPos */
+        float XZoffsetMultiplier = 4.0;
+        float Yoffset = 3.0;
 
-        /* Define diretcion by multiplying*/
-        float cameraOffsetX_dir = 2;
-        float cameraOffsetZ_dir = 2;
+        float speedEffect = speed/maxSpeed; // efeito de olhar mais pra frente conforme vai mais rapido, vai de 0.0 a 1.0, eh 0 se tiver parado e 1.0 se tiver na velocidade maxima
 
-        /* Define Height by sub */
-        float cameraOffsetX = 2;
-        float cameraOffsetY = 2;
-        float cameraOffsetZ = 2;
-
-        Vector3D cameraPos = Vector3D(
-            centerOfMass.x - (forward.getX() * cameraOffsetX_dir),
-            centerOfMass.y - (forward.getY() - cameraOffsetY),
-            centerOfMass.z - (forward.getZ() * cameraOffsetZ_dir)
+        Vector3D carPos = Vector3D(centerOfMass.x, centerOfMass.y, centerOfMass.z);
+        Vector3D cameraPosOffset = Vector3D(
+            forward.getX()*XZoffsetMultiplier, 
+            -Yoffset + speedEffect*0.75,                             // eh negativo pq esse vetor vai ser subtrarido da posicao do carro
+            forward.getZ()*XZoffsetMultiplier
         );
+
+        Vector3D cameraPos = carPos - cameraPosOffset;
 
         cameraPtr->setX(cameraPos.getX());
         cameraPtr->setY(cameraPos.getY());
