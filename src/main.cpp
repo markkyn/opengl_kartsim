@@ -1,4 +1,4 @@
-// CG - T01 - Marcos Gabriel, Gustavo;
+// CG - T01 - Marcos Gabriel, Gustavo Lucas Santana;
 // main.cpp
 // g++ -o main ./src/main.cpp ./src/math/matrix.cpp ./src/gameobjects/camera.cpp -lGL -lGLU -lglut
 // ./main ./assets/file.ppm
@@ -35,6 +35,11 @@ GLfloat light2_position[] = {5, 1.0, 5.0, 1, 1.0};
 Camera *camera;
 GameObject *car;
 Terrain *terrain;
+
+GameObject* pneus[5];
+GameObject* arquibancadas[4];
+GameObject* bandeira;
+
 Skybox *skybox;
 
 /* Helpers */
@@ -48,9 +53,11 @@ int is_down_pressed = 0;
 int is_left_pressed = 0;
 int is_right_pressed = 0;
 
-// aceleracao pra frente e pra tras do carro
-float ACELERACAO_MAX = 0.4;
-float aceleracao = 0.0;
+// carSpeed pra frente e pra tras do carro
+float MAX_SPEED = 0.4;
+float carSpeed = 0.0;
+float MAX_STEERING_SPEED = 5.0;
+float steeringSpeed = 0.0;
 
 void iluminar()
 {
@@ -118,6 +125,30 @@ void desenhar_eixos()
     glEnd();
 }
 
+void setPropsPositions()
+{
+    bandeira->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
+    car->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
+
+    pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
+    pneus[1]->translate(Vector3D(32.0, 0.0, 36.0));
+    pneus[2]->translate(Vector3D(32.7, 0.0, 60.0));
+    pneus[3]->translate(Vector3D(56.2, 0.0, 59.0));
+    pneus[3]->rotateQuat(-35.0, Vector3D(0.0, 1.0, 0.0));
+
+    // frente
+    arquibancadas[1]->translate(Vector3D(79.0, 0.0, 79.0));
+    arquibancadas[1]->rotateQuat(-180.0, Vector3D(0.0, 1.0, 0.0));
+
+    //esquerda
+    arquibancadas[2]->translate(Vector3D(79.0, 0.0, 0.0));
+    arquibancadas[2]->rotateQuat(-90.0, Vector3D(0.0, 1.0, 0.0));
+
+    //direita
+    arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
+    arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
+}
+
 void init(char **argv)
 {
     glClearColor(0.2, 0.2, 0.2, 0.0);
@@ -140,14 +171,31 @@ void init(char **argv)
     skybox = new Skybox(skybox_files);
 
     /* Terrain */
-    terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+
+    // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.png"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+    terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
+
+    //terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
     skybox->display();
 
     /* GameObj = Car */
-    car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");
+    car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
+
+    for(int i=0; i<4; i++){
+        pneus[i] = new GameObject("../assets/pneus.obj", "../assets/textura_pneus.png", true);
+    }
+
+    for(int i=0; i<4; i++){
+        arquibancadas[i] = new GameObject("../assets/arquibancada.obj", "../assets/textura_arquibancada.png", true);
+    }
+
+    bandeira = new GameObject("../assets/bandeira.obj", "../assets/textura_bandeira.png", true);
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
+    car->setMaxSpeed(MAX_SPEED);
+
+    setPropsPositions();
 }
 
 void specialKeyPressed(int key, int x, int y){
@@ -164,45 +212,49 @@ void specialKeyReleased(int key, int x, int y){
     if(key == GLUT_KEY_RIGHT) is_right_pressed = 0;
 }
 
-void handle_car_movement()
-{
-    if (is_up_pressed)
-        aceleracao += 0.005;
-    if (is_down_pressed)
-        aceleracao -= 0.005;
 
-    // clamp dos valores da aceleracao
-    if (aceleracao > ACELERACAO_MAX)
-        aceleracao = ACELERACAO_MAX;
-    if (aceleracao < -ACELERACAO_MAX)
-        aceleracao = -ACELERACAO_MAX;
+void handle_car_movement(){
+    if(is_up_pressed) carSpeed += 0.005;
+    if(is_down_pressed) carSpeed -= 0.005;
+
+    // clamp dos valores da carSpeed
+    if(carSpeed > MAX_SPEED) carSpeed = MAX_SPEED;
+    if(carSpeed < -MAX_SPEED) carSpeed = -MAX_SPEED;
+
+    car->translate(car->getForward() * carSpeed);
+
+    // desaceleracao (fiz com *0.1 para ir diminuindo gradualmente e n ter chance de diminuir dms alem do 0 e ficar um valor negativo)
+    if(!is_up_pressed && !is_down_pressed){
+        if(carSpeed > 0.0) carSpeed -= carSpeed*0.05;
+        if(carSpeed < 0.0) carSpeed += -carSpeed*0.05;
+    }
+
+
+    // ROTACAO vv
 
     // controle da rotacao levando em consideracao a re (dando re roda ao contrario) (nao compara exatamente com 0 pq a desaceleracao eh uma interpolacao)
-    if (aceleracao < -0.01)
-    {
-        if (is_left_pressed)
-            car->rotateQuat(-5, car->getUp());
-        if (is_right_pressed)
-            car->rotateQuat(5, car->getUp());
+    if(carSpeed < -0.01){
+        if(is_left_pressed) steeringSpeed -= 0.25; //car->rotateQuat(-5, yAxis);
+        if(is_right_pressed) steeringSpeed += 0.25; //car->rotateQuat(5, yAxis);
     }
-    else
-    {
-        if (is_left_pressed)
-            car->rotateQuat(5, car->getUp());
-        if (is_right_pressed)
-            car->rotateQuat(-5, car->getUp());
+    else{
+        if(is_left_pressed) steeringSpeed += 0.25; //car->rotateQuat(5, yAxis);
+        if(is_right_pressed) steeringSpeed -= 0.25; //car->rotateQuat(-5, yAxis);
     }
 
-    car->translate(car->getForward() * aceleracao);
+    // clamp dos valores de steering
+    if(steeringSpeed > MAX_STEERING_SPEED) steeringSpeed = MAX_STEERING_SPEED;
+    if(steeringSpeed < -MAX_STEERING_SPEED) steeringSpeed = -MAX_STEERING_SPEED;
 
-    // desaceleracao (fiz com *0.1 para nao depender do deltaTime, se tivesse feito com valores fixos e sem o deltaTime, poderia ter inconsistencias em fps mais baixos)
-    if (!is_up_pressed && !is_down_pressed)
-    {
-        if (aceleracao > 0.0)
-            aceleracao -= aceleracao * 0.1;
-        if (aceleracao < 0.0)
-            aceleracao += -aceleracao * 0.1;
+    car->rotateQuat(steeringSpeed, yAxis);
+
+    // desaceleracao do steering
+    if(!is_left_pressed && !is_right_pressed){
+        if(steeringSpeed > 0.0) steeringSpeed -= steeringSpeed*0.25;
+        if(steeringSpeed < 0.0) steeringSpeed += -steeringSpeed*0.25;
     }
+
+    car->setSpeed(carSpeed);
 }
 
 void display(void)
@@ -217,6 +269,16 @@ void display(void)
     car->display();
     terrain->drawTerrain();
     desenhar_eixos();
+
+    for(int i=0; i<4; i++){
+        pneus[i]->display();
+    }
+
+    for(int i=0; i<4; i++){
+        arquibancadas[i]->display();
+    }
+
+    bandeira->display();
 
     iluminar();
 
@@ -253,7 +315,8 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glfwInit();
 
-    glutInitWindowSize(1920, 1080);
+    // glutInitWindowSize(1920, 1080);
+    glutInitWindowSize(1366, 762);
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Hello World");
 

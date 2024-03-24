@@ -19,7 +19,7 @@
 #include "stb_image.h"
 
 int image_width, image_height, channels;
-static GLuint textureID;
+
 
 /* PRIVATE */
 void GameObject::drawModel()
@@ -29,9 +29,9 @@ void GameObject::drawModel()
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    GLfloat mat_specular[] = {1.0, 1.0, 0.0, 1.0};
-    GLfloat mat_diffuse[] = {1.0, 0.3, 0.3, 1.0};
-    GLfloat mat_shininess[] = {30.0};
+    GLfloat mat_specular[] = {1.0, 1.0, 1, 1.0};
+    GLfloat mat_diffuse[] = {1.0, 1, 1, 1.0};
+    GLfloat mat_shininess[] = {50.0};
 
     glPushAttrib(GL_LIGHTING_BIT);
 
@@ -40,7 +40,7 @@ void GameObject::drawModel()
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 
     glEnable(GL_LIGHTING);
-
+       
     glBegin(GL_TRIANGLES); // Mudar para GL_TRIANGLES, GL_LINES, etc., conforme necessário.
 
     for (size_t i = 0; i < vertices.size(); ++i)
@@ -50,8 +50,10 @@ void GameObject::drawModel()
         glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
     }
     glEnd();
-    glDisable(GL_LIGHTING);
+
+
     glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
 
     glPopAttrib();
 }
@@ -74,7 +76,7 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotatio
     upVisual = normalAtPoint;
 }
 
-void loadTexture(const char *textura)
+void GameObject::loadTexture(const char *textura)
 {
     // load da textura
     unsigned char *image = stbi_load(textura, &image_width, &image_height, &channels, 0);
@@ -91,14 +93,23 @@ void loadTexture(const char *textura)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // define uma textura bidimensional
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    if(hasTransparency){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    }
+    else{
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    }
 
     stbi_image_free(image);
+    glDisable(GL_BLEND);
 }
 
 /* PUBLIC */
-GameObject::GameObject(const char *objFileName, const char *textura)
+GameObject::GameObject(const char *objFileName, const char *textura, bool transparency) // o modelo3D texturizado so fica com sombreamento se tiver com transparencia=true, e sua textura nao for 100% opaca, padrao: 90%
 {
     x = 0.0;
     y = 0.0;
@@ -118,6 +129,7 @@ GameObject::GameObject(const char *objFileName, const char *textura)
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 
+    hasTransparency = transparency;
     loadTexture(textura);
 }
 
@@ -126,10 +138,7 @@ void GameObject::display()
 
     if (terrainPtr)
     {
-        this->setY(
-            terrainPtr->heightAt(
-                this->x, this->z) +
-            0.5f);
+        this->setY(terrainPtr->heightAt(this->x, this->z));
         terrainPtr->drawTerrain();
 /*
         this->alignWithTerrainNormal(
@@ -142,13 +151,25 @@ void GameObject::display()
     if (cameraPtr)
     {
         /* CameraPos */
-        float cameraOffsetX = -4.0f;
-        float cameraOffsetY = 4.0f;
-        float cameraOffsetZ = 0.0f;
+        float XZoffsetMultiplier = 4.0;
+        float Yoffset = 3.0;
 
-        cameraPtr->setX(this->getX() + cameraOffsetX);
-        cameraPtr->setY(this->getY() + cameraOffsetY);
-        cameraPtr->setZ(this->getZ() + cameraOffsetZ);
+        float speedEffect = speed/maxSpeed; // efeito de olhar mais pra frente conforme vai mais rapido, vai de 0.0 a 1.0, eh 0 se tiver parado e 1.0 se tiver na velocidade maxima
+
+        Vector3D carPos = Vector3D(centerOfMass.x, centerOfMass.y, centerOfMass.z);
+        Vector3D cameraPosOffset = Vector3D(
+            forward.getX()*XZoffsetMultiplier, 
+            -Yoffset + speedEffect*0.75,        // eh negativo pq esse vetor vai ser subtrarido da posicao do carro
+            forward.getZ()*XZoffsetMultiplier
+        );
+
+        Vector3D cameraPos = carPos - cameraPosOffset;
+
+        // std::cout << centerOfMass.x << " " << centerOfMass.y << " " << centerOfMass.z << "\n";
+
+        cameraPtr->setX(cameraPos.getX());
+        cameraPtr->setY(cameraPos.getY());
+        cameraPtr->setZ(cameraPos.getZ());
 
         float lookOffsetX = 0.0f;
         float lookOffsetY = 1.0f;
@@ -167,6 +188,12 @@ void GameObject::display()
 
 void GameObject::translate(Vector3D to_pos)
 {
+    // controle de colisao com as bordas do mapa
+    if(this->centerOfMass.x + to_pos.getX() > 79.0) return;
+    if(this->centerOfMass.z + to_pos.getZ() > 79.0) return;
+    if(this->centerOfMass.x + to_pos.getX() < 0.0) return;
+    if(this->centerOfMass.z + to_pos.getZ() < 0.0) return;
+
     /* Creating Translate Matrix */
     Matrix translation_matrix(4, 4);
 

@@ -20,6 +20,9 @@ protected:
     Vector3D up;
     Vector3D upVisual;
 
+    GLuint textureID;
+    bool hasTransparency = false;
+
     /* Points */
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
@@ -37,16 +40,18 @@ protected:
     float scaleValue;
 
     void drawModel();
+
     void readObj(const std::string &objFileName);
     void alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotationAxis );
 
     /* Physics */
     float speed;
-    float acelleration;
-    Vector3D direction; // wheel direction 
+    float maxSpeed;
+    // float acelleration; // nao usado
+    Vector3D direction; // wheel direction
 
 public:
-    GameObject(const char *objFileName, const char *textura);
+    GameObject(const char *objFileName, const char *textura, bool transparency=false);
 
     void attachCamera(Camera *camera) { cameraPtr = camera; };
     void attachTerrain(Terrain *terrain) { terrainPtr = terrain; };
@@ -59,7 +64,10 @@ public:
 
     void display();
 
+
+    void loadTexture(const char *textura);
     Vector3D getUp() { return up;};
+
     
     float getX() { return x; };
     float getY() { return y; };
@@ -71,12 +79,14 @@ public:
     Vector3D getForward() { return forward; };
 
     void setSpeed(float value) { speed = value; };
-    void setAcelleration(float value) { acelleration = value; };
+    void setMaxSpeed(float value) { maxSpeed = value; };
+    // void setAcelleration(float value) { acelleration = value; };
     
     float getSpeed() { return speed; };
-    float getAcelleration() { return acelleration; };
+    float getMaxSpeed() { return maxSpeed; };
+    // float getAcelleration() { return acelleration; };
 
-    void acellerate();
+    // void acellerate();
 
 
 };
