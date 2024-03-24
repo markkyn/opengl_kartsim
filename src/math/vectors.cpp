@@ -113,5 +113,5 @@ float Vector3D::angleBetween(Vector3D vector)
 
     cosTheta = std::max(-1.0f, std::min(1.0f, cosTheta));
 
-    return acos(cosTheta);
+    return acos(cosTheta) * 57.2958;
 }

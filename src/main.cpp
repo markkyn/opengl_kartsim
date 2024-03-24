@@ -19,7 +19,7 @@
 #include "./gameobjects/camera.h"
 #include "./gameobjects/gameobjects.h"
 #include "./gameobjects/terrain.h"
-
+#include "./graphics/skybox.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -35,9 +35,12 @@ GLfloat light2_position[] = {5, 1.0, 5.0, 1, 1.0};
 Camera *camera;
 GameObject *car;
 Terrain *terrain;
+
 GameObject* pneus[5];
 GameObject* arquibancadas[4];
 GameObject* bandeira;
+
+Skybox *skybox;
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -55,7 +58,6 @@ float MAX_SPEED = 0.4;
 float carSpeed = 0.0;
 float MAX_STEERING_SPEED = 5.0;
 float steeringSpeed = 0.0;
-
 
 void iluminar()
 {
@@ -75,7 +77,7 @@ void iluminar()
     glLightfv(GL_LIGHT2, GL_SPECULAR, light1_specular);
     glLightfv(GL_LIGHT2, GL_AMBIENT, light1_ambient);
 
-    //glEnable(GL_LIGHT0);
+    // glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHT2);
 }
@@ -153,13 +155,28 @@ void init(char **argv)
 
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
-
     /* Camera */
-    camera = new Camera(4, 2, 3);    
+    camera = new Camera(4, 2, 3);
+
+    std::vector<std::string> skybox_files
+    {
+        "../assets/skybox/right.jpg",
+        "../assets/skybox/left.jpg",
+        "../assets/skybox/top.jpg",
+        "../assets/skybox/bottom.jpg",
+        "../assets/skybox/front.jpg",
+        "../assets/skybox/back.jpg"
+    };
+
+    skybox = new Skybox(skybox_files);
 
     /* Terrain */
+
     // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.png"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
     terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
+
+    //terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+    skybox->display();
 
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
@@ -194,6 +211,7 @@ void specialKeyReleased(int key, int x, int y){
     if(key == GLUT_KEY_LEFT) is_left_pressed = 0;
     if(key == GLUT_KEY_RIGHT) is_right_pressed = 0;
 }
+
 
 void handle_car_movement(){
     if(is_up_pressed) carSpeed += 0.005;
@@ -241,15 +259,13 @@ void handle_car_movement(){
 
 void display(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    //desenhar_luz();
 
     camera->display();
 
-    
     car->display();
     terrain->drawTerrain();
     desenhar_eixos();
@@ -281,17 +297,17 @@ void reshape(int w, int h)
     glLoadIdentity();
 }
 
-
-void gameloop(){
+void gameloop()
+{
     handle_car_movement();
     glutPostRedisplay();
 }
 
-void timerFunc(int value){
+void timerFunc(int value)
+{
     gameloop();
     glutTimerFunc(1000 / 60, timerFunc, 0); // Configura o próximo chamada da função timerFunc(), roda a 60fps
 }
-
 
 int main(int argc, char **argv)
 {
@@ -312,7 +328,7 @@ int main(int argc, char **argv)
     glutSpecialFunc(specialKeyPressed);
     glutSpecialUpFunc(specialKeyReleased);
     glutReshapeFunc(reshape);
-    
+
     glutTimerFunc(1000 / 60, timerFunc, 0); // 60 FPS
     glutMainLoop();
 

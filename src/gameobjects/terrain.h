@@ -20,6 +20,7 @@ public:
     ~Terrain();
 
     Vector3D normalAt(float x, float y);
+    Vector3D diffZeroAt(float x, float y);
     float heightAt(float x, float y);
     void drawTerrain();
     void loadTerrainTexture(const char *textura);

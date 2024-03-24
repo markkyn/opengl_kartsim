@@ -45,7 +45,7 @@ void GameObject::drawModel()
 
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        glNormal3f(normals[i].x, normals[i].y+ this->y, normals[i].z);
+        glNormal3f(normals[i].x, normals[i].y + this->y, normals[i].z);
         glTexCoord2f(uvs[i].x, uvs[i].y);
         glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
     }
@@ -58,29 +58,22 @@ void GameObject::drawModel()
     glPopAttrib();
 }
 
-void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
+void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotationAxis)
 {
-    Vector3D globalUp(0, 1, 0);
+    // normal at x and z of terrain
+    // rotation at face of terrain (diff = 0)
 
-    Vector3D projectedNormal(normalAtPoint.getX(), 0, normalAtPoint.getZ());
-    Vector3D projectedUp(globalUp.getX(), 0, globalUp.getZ());
+    float angleDiff = upVisual.angleBetween(normalAtPoint);
+/*
+    printf("up = (%.2f, %.2f, %.2f ) | normal = (%.2f, %.2f, %.2f ) | angle = %f\n",
+           upVisual.getX(), upVisual.getY(), upVisual.getZ(),
+           normalAtPoint.getX(), normalAtPoint.getY(), normalAtPoint.getZ(),
+           angleDiff);
+*/
 
-    projectedNormal = projectedNormal.normalize();
-    projectedUp = projectedUp.normalize();
+    rotateQuatVisual(angleDiff, rotationAxis);
 
-    float dotProd = projectedUp.dot(projectedNormal);
-    float angle = acos(dotProd) * (180.0 / M_PI); // Convertendo para graus
-
-    if (projectedNormal.getX() > projectedUp.getX())
-    {
-        angle = -angle;
-    }
-
-    if (std::abs(angle) > 0.01)
-    {
-        Vector3D pitchAxis(0, 1, 0);
-        this->rotateQuat(angle, pitchAxis);
-    }
+    upVisual = normalAtPoint;
 }
 
 void GameObject::loadTexture(const char *textura)
@@ -128,7 +121,8 @@ GameObject::GameObject(const char *objFileName, const char *textura, bool transp
 
     this->centerOfMass = glm::vec3(x, y, z);
     forward = Vector3D(1, 0, 0);
-    up = Vector3D(1, 0, 0);
+    up = Vector3D(0, 1, 0);
+    upVisual = Vector3D(0, 1, 0);
 
     /* Physics */
     direction = forward;
@@ -146,9 +140,11 @@ void GameObject::display()
     {
         this->setY(terrainPtr->heightAt(this->x, this->z));
         terrainPtr->drawTerrain();
-
+/*
         this->alignWithTerrainNormal(
-            terrainPtr->normalAt((int)x, (int)z));
+            terrainPtr->normalAt(x, z),
+            terrainPtr->diffZeroAt(x, z));
+*/
     }
 
     /* Attached Camera */
@@ -326,4 +322,30 @@ void GameObject::rotateQuat(double angle, Vector3D axis)
     float angleZ = eulerAngles.z;
 
     forward.rotate(angleX, angleY, angleZ);
+}
+
+void GameObject::rotateQuatVisual(double angle, Vector3D axis)
+{
+    double angleRadians = angle * M_PI / 180.0;
+
+    glm::quat rotationQuat = glm::angleAxis((float)angleRadians, glm::vec3(axis.getX(), axis.getY(), axis.getZ()));
+
+    for (glm::vec3 &vertex : vertices)
+    {
+        glm::vec3 translatedVertex = vertex - centerOfMass;
+
+        glm::vec3 rotatedVertex = rotationQuat * translatedVertex;
+
+        vertex = rotatedVertex + centerOfMass;
+    }
+
+    // Update attributes
+    this->centerOfMass = glm::vec3(x, y, z);
+
+    // updateForward
+    glm::vec3 eulerAngles = glm::eulerAngles(rotationQuat);
+
+    float angleX = eulerAngles.x;
+    float angleY = eulerAngles.y;
+    float angleZ = eulerAngles.z;
 }

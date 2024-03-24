@@ -14,7 +14,6 @@
 int terrain_texture_width, terrain_texture_height, terrain_texture_channels;
 static GLuint textureTerrainID;
 
-
 void Terrain::loadTerrainTexture(const char *textura)
 {
     // load da textura
@@ -37,7 +36,6 @@ void Terrain::loadTerrainTexture(const char *textura)
 
     stbi_image_free(terrain_image);
 }
-
 
 Terrain::Terrain(char *filename, const char *textura)
 {
@@ -119,12 +117,12 @@ void Terrain::drawTerrain()
     for (int i = 0; i < width - 1; i++)
         for (int j = 0; j < depth - 1; j++)
         {
-            Vector3D normal = normalAt(i, j); 
+            Vector3D normal = normalAt(i, j);
             glNormal3f(normal.getX(), normal.getY(), normal.getZ());
-            
-            float uv_x = float(i)/(width-2); // vai de 0.0 a 1.0 baseado no quao grande estah o I, pq o I vai ate (width-2) no maximo
-            float uv_y = float(j)/(depth-2);
-            glTexCoord2f(uv_x , uv_y);
+
+            float uv_x = float(i) / (width - 2); // vai de 0.0 a 1.0 baseado no quao grande estah o I, pq o I vai ate (width-2) no maximo
+            float uv_y = float(j) / (depth - 2);
+            glTexCoord2f(uv_x, uv_y);
 
             glVertex3f(
                 i - offset_x,
@@ -152,7 +150,8 @@ void Terrain::drawTerrain()
     glPopAttrib();
 }
 
-Vector3D Terrain::normalAt(float x, float y) {
+Vector3D Terrain::normalAt(float x, float y)
+{
     float delta = 0.1f;
     float heightCenter = heightAt(x, y);
     float heightXPlus = heightAt(x + delta, y);
@@ -164,7 +163,8 @@ Vector3D Terrain::normalAt(float x, float y) {
     glm::vec3 normal = glm::cross(vecY, vecX);
     normal = glm::normalize(normal);
 
-    if (normal.y < 0) {
+    if (normal.y < 0)
+    {
         normal = -normal;
     }
 
@@ -194,4 +194,21 @@ float Terrain::heightAt(float x, float y)
     float height = top * (1 - dy) + bottom * dy;
 
     return height;
+}
+
+Vector3D Terrain::diffZeroAt(float x, float y)
+{
+    int i0 = floor(x);
+    int j0 = floor(y); // Ponto mais proximo da origem
+    int i1 = ceil(y);
+    int j1 = ceil(y); // Ponto mais longe da origem
+
+    if (heightAt(i0, j0) == heightAt(i0, j1)) // ->
+        return Vector3D(0.0f, 0.0f, 1.0f);
+    if (heightAt(i0, j0) == heightAt(i1, j0)) // /
+        return Vector3D(1.0f, 0.0f, 0.0);
+    if (heightAt(i0, j0) == heightAt(i1, j1)) //
+        return Vector3D(0.5f, 0.0f, 0.5f);
+
+    return Vector3D(0.0, 1.0f, 0.0f);
 }
