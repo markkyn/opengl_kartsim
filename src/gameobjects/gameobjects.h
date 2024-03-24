@@ -18,6 +18,7 @@ protected:
     float x, y, z;
     Vector3D forward;
     Vector3D up;
+    Vector3D upVisual;
 
     /* Points */
     std::vector<glm::vec3> vertices;
@@ -37,7 +38,7 @@ protected:
 
     void drawModel();
     void readObj(const std::string &objFileName);
-    void alignWithTerrainNormal(Vector3D normalAtPoint);
+    void alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotationAxis );
 
     /* Physics */
     float speed;
@@ -53,9 +54,12 @@ public:
     void translate(Vector3D to_pos);
     void rotate(float x, float y, float z);
     void rotateQuat(double angle, Vector3D axis);
+    void rotateQuatVisual(double angle, Vector3D axis);
     void scale(float x, float y, float z);
 
     void display();
+
+    Vector3D getUp() { return up;};
     
     float getX() { return x; };
     float getY() { return y; };

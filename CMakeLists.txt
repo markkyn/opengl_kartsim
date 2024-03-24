@@ -28,6 +28,7 @@ add_executable(
     ../src/gameobjects/terrain.cpp
     ../src/gameobjects/gameobjects.cpp
     ../src/graphics/objloader.cpp
+    ../src/graphics/skybox.cpp
 )
 
 
