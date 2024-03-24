@@ -35,6 +35,7 @@ GLfloat light2_position[] = {5, 1.0, 5.0, 1, 1.0};
 Camera *camera;
 GameObject *car;
 Terrain *terrain;
+GameObject* pneus[5];
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -135,11 +136,17 @@ void init(char **argv)
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");
 
+    for(int i=0; i<5; i++){
+        pneus[i] = new GameObject("../assets/pneus.obj", "../assets/textura_pneus_png.png");
+    }
+
     car->attachCamera(camera);
     car->attachTerrain(terrain);
     car->setMaxSpeed(MAX_SPEED);
 
     car->translate(Vector3D(27.0, 0.0, 12.5)); // posicao inicial do mapa
+
+    pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
 }
 
 void specialKeyPressed(int key, int x, int y){
@@ -199,6 +206,11 @@ void display(void)
     car->display();
     terrain->drawTerrain();
     desenhar_eixos();
+
+    for(int i=0; i<5; i++){
+        pneus[i]->display();
+    }
+
 
     iluminar();
 

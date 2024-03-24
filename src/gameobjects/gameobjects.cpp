@@ -19,7 +19,7 @@
 #include "stb_image.h"
 
 int image_width, image_height, channels;
-static GLuint textureID;
+
 
 /* PRIVATE */
 void GameObject::drawModel()
@@ -83,7 +83,7 @@ void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint)
     }
 }
 
-void loadTexture(const char *textura)
+void GameObject::loadTexture(const char *textura)
 {
     // load da textura
     unsigned char *image = stbi_load(textura, &image_width, &image_height, &channels, 0);
@@ -134,10 +134,7 @@ void GameObject::display()
 
     if (terrainPtr)
     {
-        this->setY(
-            terrainPtr->heightAt(
-                this->x, this->z) +
-            0.5f);
+        this->setY(terrainPtr->heightAt(this->x, this->z));
         terrainPtr->drawTerrain();
 
         this->alignWithTerrainNormal(
@@ -161,6 +158,8 @@ void GameObject::display()
         );
 
         Vector3D cameraPos = carPos - cameraPosOffset;
+
+        std::cout << centerOfMass.x << " " << centerOfMass.y << " " << centerOfMass.z << "\n";
 
         cameraPtr->setX(cameraPos.getX());
         cameraPtr->setY(cameraPos.getY());

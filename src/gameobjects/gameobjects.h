@@ -19,6 +19,8 @@ protected:
     Vector3D forward;
     Vector3D up;
 
+    GLuint textureID;
+
     /* Points */
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec2> uvs;
@@ -57,6 +59,8 @@ public:
     void scale(float x, float y, float z);
 
     void display();
+
+    void loadTexture(const char *textura);
     
     float getX() { return x; };
     float getY() { return y; };
