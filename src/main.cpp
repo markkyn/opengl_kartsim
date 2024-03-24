@@ -37,6 +37,7 @@ GameObject *car;
 Terrain *terrain;
 GameObject* pneus[5];
 GameObject* arquibancadas[4];
+GameObject* bandeira;
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -122,6 +123,30 @@ void desenhar_eixos()
     glEnd();
 }
 
+void setPropsPositions()
+{
+    bandeira->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
+    car->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
+
+    pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
+    pneus[1]->translate(Vector3D(32.0, 0.0, 36.0));
+    pneus[2]->translate(Vector3D(32.7, 0.0, 60.0));
+    pneus[3]->translate(Vector3D(56.2, 0.0, 59.0));
+    pneus[3]->rotateQuat(-35.0, Vector3D(0.0, 1.0, 0.0));
+
+    // frente
+    arquibancadas[1]->translate(Vector3D(79.0, 0.0, 79.0));
+    arquibancadas[1]->rotateQuat(-180.0, Vector3D(0.0, 1.0, 0.0));
+
+    //esquerda
+    arquibancadas[2]->translate(Vector3D(79.0, 0.0, 0.0));
+    arquibancadas[2]->rotateQuat(-90.0, Vector3D(0.0, 1.0, 0.0));
+
+    //direita
+    arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
+    arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
+}
+
 void init(char **argv)
 {
     glClearColor(0.2, 0.2, 0.2, 0.0);
@@ -147,25 +172,13 @@ void init(char **argv)
         arquibancadas[i] = new GameObject("../assets/arquibancada.obj", "../assets/textura_arquibancada.png", true);
     }
 
+    bandeira = new GameObject("../assets/bandeira.obj", "../assets/textura_bandeira.png", true);
+
     car->attachCamera(camera);
     car->attachTerrain(terrain);
     car->setMaxSpeed(MAX_SPEED);
 
-    car->translate(Vector3D(27.0, 0.0, 12.5)); // posicao inicial do mapa
-
-    pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
-
-    // frente
-    arquibancadas[1]->translate(Vector3D(79.0, 0.0, 79.0));
-    arquibancadas[1]->rotateQuat(-180.0, Vector3D(0.0, 1.0, 0.0));
-
-    //esquerda
-    arquibancadas[2]->translate(Vector3D(79.0, 0.0, 0.0));
-    arquibancadas[2]->rotateQuat(-90.0, Vector3D(0.0, 1.0, 0.0));
-
-    //direita
-    arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
-    arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
+    setPropsPositions();
 }
 
 void specialKeyPressed(int key, int x, int y){
@@ -248,6 +261,8 @@ void display(void)
     for(int i=0; i<4; i++){
         arquibancadas[i]->display();
     }
+
+    bandeira->display();
 
     iluminar();
 
