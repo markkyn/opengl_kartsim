@@ -163,13 +163,13 @@ void GameObject::display()
         Vector3D carPos = Vector3D(centerOfMass.x, centerOfMass.y, centerOfMass.z);
         Vector3D cameraPosOffset = Vector3D(
             forward.getX()*XZoffsetMultiplier, 
-            -Yoffset + speedEffect*0.75,                             // eh negativo pq esse vetor vai ser subtrarido da posicao do carro
+            -Yoffset + speedEffect*0.75,        // eh negativo pq esse vetor vai ser subtrarido da posicao do carro
             forward.getZ()*XZoffsetMultiplier
         );
 
         Vector3D cameraPos = carPos - cameraPosOffset;
 
-        std::cout << centerOfMass.x << " " << centerOfMass.y << " " << centerOfMass.z << "\n";
+        // std::cout << centerOfMass.x << " " << centerOfMass.y << " " << centerOfMass.z << "\n";
 
         cameraPtr->setX(cameraPos.getX());
         cameraPtr->setY(cameraPos.getY());

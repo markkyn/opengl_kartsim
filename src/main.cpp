@@ -36,6 +36,7 @@ Camera *camera;
 GameObject *car;
 Terrain *terrain;
 GameObject* pneus[5];
+GameObject* arquibancadas[4];
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -131,13 +132,17 @@ void init(char **argv)
 
     /* Terrain */
     // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
-    terrain = new Terrain(argv[1], "../assets/textura_terreno.png");
+    terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
 
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<4; i++){
         pneus[i] = new GameObject("../assets/pneus.obj", "../assets/textura_pneus.png", true);
+    }
+
+    for(int i=0; i<4; i++){
+        arquibancadas[i] = new GameObject("../assets/arquibancada.obj", "../assets/textura_arquibancada.png", true);
     }
 
     car->attachCamera(camera);
@@ -147,6 +152,18 @@ void init(char **argv)
     car->translate(Vector3D(27.0, 0.0, 12.5)); // posicao inicial do mapa
 
     pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
+
+    // frente
+    arquibancadas[1]->translate(Vector3D(79.0, 0.0, 79.0));
+    arquibancadas[1]->rotateQuat(-180.0, Vector3D(0.0, 1.0, 0.0));
+
+    //esquerda
+    arquibancadas[2]->translate(Vector3D(79.0, 0.0, 0.0));
+    arquibancadas[2]->rotateQuat(-90.0, Vector3D(0.0, 1.0, 0.0));
+
+    //direita
+    arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
+    arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
 }
 
 void specialKeyPressed(int key, int x, int y){
@@ -207,10 +224,13 @@ void display(void)
     terrain->drawTerrain();
     desenhar_eixos();
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<4; i++){
         pneus[i]->display();
     }
 
+    for(int i=0; i<4; i++){
+        arquibancadas[i]->display();
+    }
 
     iluminar();
 
