@@ -100,14 +100,23 @@ void GameObject::loadTexture(const char *textura)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // define uma textura bidimensional
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    if(hasTransparency){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    }
+    else{
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_width, image_height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    }
 
     stbi_image_free(image);
+    glDisable(GL_BLEND);
 }
 
 /* PUBLIC */
-GameObject::GameObject(const char *objFileName, const char *textura)
+GameObject::GameObject(const char *objFileName, const char *textura, bool transparency) // o modelo3D texturizado so fica com sombreamento se tiver com transparencia=true, e sua textura nao for 100% opaca, padrao: 90%
 {
     x = 0.0;
     y = 0.0;
@@ -126,6 +135,7 @@ GameObject::GameObject(const char *objFileName, const char *textura)
 
     bool res = loadOBJ(objFileName, vertices, uvs, normals);
 
+    hasTransparency = transparency;
     loadTexture(textura);
 }
 

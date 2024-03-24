@@ -131,13 +131,13 @@ void init(char **argv)
 
     /* Terrain */
     // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
-    terrain = new Terrain(argv[1], "../assets/textura_terreno_png.png");
+    terrain = new Terrain(argv[1], "../assets/textura_terreno.png");
 
     /* GameObj = Car */
-    car = new GameObject("../assets/carro.obj", "../assets/textura_carro.jpg");
+    car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
 
     for(int i=0; i<5; i++){
-        pneus[i] = new GameObject("../assets/pneus.obj", "../assets/textura_pneus_png.png");
+        pneus[i] = new GameObject("../assets/pneus.obj", "../assets/textura_pneus.png", true);
     }
 
     car->attachCamera(camera);

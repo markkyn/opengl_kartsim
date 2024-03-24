@@ -20,6 +20,7 @@ protected:
     Vector3D up;
 
     GLuint textureID;
+    bool hasTransparency = false;
 
     /* Points */
     std::vector<glm::vec3> vertices;
@@ -48,7 +49,7 @@ protected:
     Vector3D direction; // wheel direction
 
 public:
-    GameObject(const char *objFileName, const char *textura);
+    GameObject(const char *objFileName, const char *textura, bool transparency=false);
 
     void attachCamera(Camera *camera) { cameraPtr = camera; };
     void attachTerrain(Terrain *terrain) { terrainPtr = terrain; };
