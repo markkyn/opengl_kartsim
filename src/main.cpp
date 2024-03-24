@@ -52,6 +52,8 @@ int is_right_pressed = 0;
 // carSpeed pra frente e pra tras do carro
 float MAX_SPEED = 0.4;
 float carSpeed = 0.0;
+float MAX_STEERING_SPEED = 5.0;
+float steeringSpeed = 0.0;
 
 
 void iluminar()
@@ -187,23 +189,38 @@ void handle_car_movement(){
     // clamp dos valores da carSpeed
     if(carSpeed > MAX_SPEED) carSpeed = MAX_SPEED;
     if(carSpeed < -MAX_SPEED) carSpeed = -MAX_SPEED;
-    
-    // controle da rotacao levando em consideracao a re (dando re roda ao contrario) (nao compara exatamente com 0 pq a desaceleracao eh uma interpolacao)
-    if(carSpeed < -0.01){
-        if(is_left_pressed) car->rotateQuat(-5, yAxis);
-        if(is_right_pressed) car->rotateQuat(5, yAxis);
-    }
-    else{
-        if(is_left_pressed) car->rotateQuat(5, yAxis);
-        if(is_right_pressed) car->rotateQuat(-5, yAxis);
-    }
-    
+
     car->translate(car->getForward() * carSpeed);
 
     // desaceleracao (fiz com *0.1 para ir diminuindo gradualmente e n ter chance de diminuir dms alem do 0 e ficar um valor negativo)
     if(!is_up_pressed && !is_down_pressed){
         if(carSpeed > 0.0) carSpeed -= carSpeed*0.05;
         if(carSpeed < 0.0) carSpeed += -carSpeed*0.05;
+    }
+
+
+    // ROTACAO vv
+
+    // controle da rotacao levando em consideracao a re (dando re roda ao contrario) (nao compara exatamente com 0 pq a desaceleracao eh uma interpolacao)
+    if(carSpeed < -0.01){
+        if(is_left_pressed) steeringSpeed -= 0.25; //car->rotateQuat(-5, yAxis);
+        if(is_right_pressed) steeringSpeed += 0.25; //car->rotateQuat(5, yAxis);
+    }
+    else{
+        if(is_left_pressed) steeringSpeed += 0.25; //car->rotateQuat(5, yAxis);
+        if(is_right_pressed) steeringSpeed -= 0.25; //car->rotateQuat(-5, yAxis);
+    }
+
+    // clamp dos valores de steering
+    if(steeringSpeed > MAX_STEERING_SPEED) steeringSpeed = MAX_STEERING_SPEED;
+    if(steeringSpeed < -MAX_STEERING_SPEED) steeringSpeed = -MAX_STEERING_SPEED;
+
+    car->rotateQuat(steeringSpeed, yAxis);
+
+    // desaceleracao do steering
+    if(!is_left_pressed && !is_right_pressed){
+        if(steeringSpeed > 0.0) steeringSpeed -= steeringSpeed*0.25;
+        if(steeringSpeed < 0.0) steeringSpeed += -steeringSpeed*0.25;
     }
 
     car->setSpeed(carSpeed);
