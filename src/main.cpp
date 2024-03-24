@@ -1,4 +1,4 @@
-// CG - T01 - Marcos Gabriel, Gustavo;
+// CG - T01 - Marcos Gabriel, Gustavo Lucas Santana;
 // main.cpp
 // g++ -o main ./src/main.cpp ./src/math/matrix.cpp ./src/gameobjects/camera.cpp -lGL -lGLU -lglut
 // ./main ./assets/file.ppm
@@ -133,7 +133,7 @@ void init(char **argv)
     camera = new Camera(4, 2, 3);    
 
     /* Terrain */
-    // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
+    // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.png"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
     terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
 
     /* GameObj = Car */
