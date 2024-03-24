@@ -192,6 +192,12 @@ void GameObject::display()
 
 void GameObject::translate(Vector3D to_pos)
 {
+    // controle de colisao com as bordas do mapa
+    if(this->centerOfMass.x + to_pos.getX() > 79.0) return;
+    if(this->centerOfMass.z + to_pos.getZ() > 79.0) return;
+    if(this->centerOfMass.x + to_pos.getX() < 0.0) return;
+    if(this->centerOfMass.z + to_pos.getZ() < 0.0) return;
+
     /* Creating Translate Matrix */
     Matrix translation_matrix(4, 4);
 
