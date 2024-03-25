@@ -19,7 +19,6 @@
 #include "./gameobjects/camera.h"
 #include "./gameobjects/gameobjects.h"
 #include "./gameobjects/terrain.h"
-#include "./graphics/skybox.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -39,8 +38,7 @@ Terrain *terrain;
 GameObject* pneus[5];
 GameObject* arquibancadas[4];
 GameObject* bandeira;
-
-Skybox *skybox;
+GameObject* ambiente;
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -147,6 +145,8 @@ void setPropsPositions()
     //direita
     arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
     arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
+
+    ambiente->translate(Vector3D(79.0/2.0, 0.0, 79.0/2.0)); // meio do mapa
 }
 
 void init(char **argv)
@@ -158,26 +158,9 @@ void init(char **argv)
     /* Camera */
     camera = new Camera(4, 2, 3);
 
-    std::vector<std::string> skybox_files
-    {
-        "../assets/skybox/right.jpg",
-        "../assets/skybox/left.jpg",
-        "../assets/skybox/top.jpg",
-        "../assets/skybox/bottom.jpg",
-        "../assets/skybox/front.jpg",
-        "../assets/skybox/back.jpg"
-    };
-
-    skybox = new Skybox(skybox_files);
-
-    /* Terrain */
-
     // terrain = new Terrain(argv[1], "../assets/textura_teste_uv.png"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
     terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
 
-    //terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
-
-    /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
 
     for(int i=0; i<4; i++){
@@ -189,6 +172,8 @@ void init(char **argv)
     }
 
     bandeira = new GameObject("../assets/bandeira.obj", "../assets/textura_bandeira.png", true);
+
+    ambiente = new GameObject("../assets/ambiente.obj", "../assets/textura_ceu.png", true);
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
@@ -282,7 +267,6 @@ void display(void)
     camera->display();
 
     car->display();
-    skybox->display();
 
     terrain->drawTerrain();
     desenhar_eixos();
@@ -296,6 +280,8 @@ void display(void)
     }
 
     bandeira->display();
+
+    ambiente->display();
 
     iluminar();
 
