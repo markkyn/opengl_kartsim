@@ -246,7 +246,7 @@ void handle_car_movement(){
     if(steeringSpeed > MAX_STEERING_SPEED) steeringSpeed = MAX_STEERING_SPEED;
     if(steeringSpeed < -MAX_STEERING_SPEED) steeringSpeed = -MAX_STEERING_SPEED;
 
-    car->rotateQuat(steeringSpeed, yAxis);
+    car->rotateQuat(steeringSpeed, car->getUp());
 
     // desaceleracao do steering
     if(!is_left_pressed && !is_right_pressed){
