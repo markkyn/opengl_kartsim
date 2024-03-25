@@ -10,6 +10,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "./gameobjects.h"
 #include "../math/matrix.h"
@@ -45,9 +46,9 @@ void GameObject::drawModel()
 
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        glNormal3f(normals[i].x, normals[i].y + this->y, normals[i].z);
+        glNormal3f(normals[i].x, normals[i].y, normals[i].z);
         glTexCoord2f(uvs[i].x, uvs[i].y);
-        glVertex3f(vertices[i].x, vertices[i].y + this->y, vertices[i].z);
+        glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
     }
     glEnd();
 
@@ -58,22 +59,12 @@ void GameObject::drawModel()
     glPopAttrib();
 }
 
-void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotationAxis)
-{
-    // normal at x and z of terrain
-    // rotation at face of terrain (diff = 0)
+void GameObject::alignWithTerrainNormal(Vector3D normalAtPoint) {
+    glm::vec3 normalGLM(normalAtPoint.getX(), normalAtPoint.getY(), normalAtPoint.getZ());
+    glm::vec3 upGLM(up.getX(), up.getY(), up.getZ());
 
-    float angleDiff = upVisual.angleBetween(normalAtPoint);
-/*
-    printf("up = (%.2f, %.2f, %.2f ) | normal = (%.2f, %.2f, %.2f ) | angle = %f\n",
-           upVisual.getX(), upVisual.getY(), upVisual.getZ(),
-           normalAtPoint.getX(), normalAtPoint.getY(), normalAtPoint.getZ(),
-           angleDiff);
-*/
-
-    rotateQuatVisual(angleDiff, rotationAxis);
-
-    upVisual = normalAtPoint;
+    glm::mat4 R = rotationMatrix(upGLM, normalGLM);
+    rotateWithGLM(R);
 }
 
 void GameObject::loadTexture(const char *textura)
@@ -108,6 +99,56 @@ void GameObject::loadTexture(const char *textura)
     glDisable(GL_BLEND);
 }
 
+glm::mat4 GameObject::rotationMatrix(glm::vec3 currentUp, glm::vec3 targetUp) {
+    currentUp = glm::normalize(currentUp);
+    targetUp = glm::normalize(targetUp);
+
+    if (glm::length(currentUp - targetUp) < 1e-5) {
+        // Os vetores já estão alinhados, retorna a matriz identidade
+        return glm::mat4(1.0f);
+    }
+
+    float cosTheta = glm::dot(currentUp, targetUp);
+    glm::vec3 rotationAxis = glm::cross(currentUp, targetUp);
+
+    if (glm::length(rotationAxis) < 1e-6) {
+        // Os vetores são opostos. Precisa de uma rotação de 180 graus em torno de um eixo ortogonal.
+        rotationAxis = glm::cross(currentUp, glm::vec3(0.0f, 0.0f, 1.0f));
+        if (glm::length(rotationAxis) < 1e-6) {
+            rotationAxis = glm::cross(currentUp, glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+    }
+
+    rotationAxis = glm::normalize(rotationAxis);
+    float angle = acos(glm::clamp(cosTheta, -1.0f, 1.0f)); // Garante que o cosTheta esteja no intervalo válido
+
+    return glm::rotate(angle, rotationAxis);
+}
+
+void GameObject::rotateWithGLM(glm::mat4 rotationMatrix) {
+    glm::mat4 translationToOrigin = glm::translate(-centerOfMass);
+    glm::mat4 translationBack = glm::translate(centerOfMass);
+    glm::mat4 combinedMatrix = translationBack * rotationMatrix * translationToOrigin;
+
+    for (auto& vertex : vertices) {
+        glm::vec4 newPos = combinedMatrix * glm::vec4(vertex, 1.0f);
+        vertex = glm::vec3(newPos);
+    }
+
+    glm::vec4 newUp = rotationMatrix * glm::vec4(up.getX(), up.getY(), up.getZ(), 0.0f);
+    glm::vec4 newForward = rotationMatrix * glm::vec4(forward.getX(), forward.getY(), forward.getZ(), 0.0f);
+
+    up.setX(newUp.x);
+    up.setY(newUp.y);
+    up.setZ(newUp.z);
+
+    forward.setX(newForward.x);
+    forward.setY(newForward.y);
+    forward.setZ(newForward.z);
+
+
+}
+
 /* PUBLIC */
 GameObject::GameObject(const char *objFileName, const char *textura, bool transparency) // o modelo3D texturizado so fica com sombreamento se tiver com transparencia=true, e sua textura nao for 100% opaca, padrao: 90%
 {
@@ -122,7 +163,6 @@ GameObject::GameObject(const char *objFileName, const char *textura, bool transp
     this->centerOfMass = glm::vec3(x, y, z);
     forward = Vector3D(1, 0, 0);
     up = Vector3D(0, 1, 0);
-    upVisual = Vector3D(0, 1, 0);
 
     /* Physics */
     direction = forward;
@@ -138,13 +178,13 @@ void GameObject::display()
 
     if (terrainPtr)
     {
-        this->setY(terrainPtr->heightAt(this->x, this->z));
+        float diffY = terrainPtr->heightAt(x, z) - centerOfMass.y; 
+
+        this->translate(Vector3D(0, diffY, 0));
+
+        alignWithTerrainNormal(terrainPtr->normalAt(x,z));
+
         terrainPtr->drawTerrain();
-/*
-        this->alignWithTerrainNormal(
-            terrainPtr->normalAt(x, z),
-            terrainPtr->diffZeroAt(x, z));
-*/
     }
 
     /* Attached Camera */

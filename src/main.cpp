@@ -210,6 +210,11 @@ void specialKeyReleased(int key, int x, int y){
     if(key == GLUT_KEY_DOWN) is_down_pressed = 0;
     if(key == GLUT_KEY_LEFT) is_left_pressed = 0;
     if(key == GLUT_KEY_RIGHT) is_right_pressed = 0;
+    if(key == GLUT_KEY_HOME) 
+    {
+        Vector3D rotationAxis = terrain->diffZeroAt(car->getX(), car->getZ());
+        car->rotateQuatVisual(-2, rotationAxis);
+    }
 }
 
 

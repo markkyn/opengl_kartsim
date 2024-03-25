@@ -18,7 +18,6 @@ protected:
     float x, y, z;
     Vector3D forward;
     Vector3D up;
-    Vector3D upVisual;
 
     GLuint textureID;
     bool hasTransparency = false;
@@ -42,8 +41,10 @@ protected:
     void drawModel();
 
     void readObj(const std::string &objFileName);
-    void alignWithTerrainNormal(Vector3D normalAtPoint, Vector3D rotationAxis );
-
+    void alignWithTerrainNormal(Vector3D normalAtPoint);
+    glm::mat4 rotationMatrix(glm::vec3 currentUp, glm::vec3 targetUp);
+    void rotateWithGLM(glm::mat4 rotationMatrix);
+    
     /* Physics */
     float speed;
     float maxSpeed;
