@@ -128,7 +128,7 @@ void desenhar_eixos()
 void setPropsPositions()
 {
     bandeira->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
-    car->translate(Vector3D(27.0, 0.0, 13.0)); // posicao inicial do mapa
+    car->translate(Vector3D(25.0, 0.0, 13.0)); // posicao inicial do mapa
 
     pneus[0]->translate(Vector3D(37.35, 0.0, 17.25));
     pneus[1]->translate(Vector3D(32.0, 0.0, 36.0));
@@ -217,6 +217,15 @@ void specialKeyReleased(int key, int x, int y){
 }
 
 
+bool isCarPositionValid(Vector3D pos, float origin_x, float origin_z){
+    if(origin_x + pos.getX() > 78.0) return false;
+    if(origin_z + pos.getZ() > 78.0) return false;
+    if(origin_x + pos.getX() < 1.0) return false;
+    if(origin_z + pos.getZ() < 1.0) return false;
+    return true;
+}
+
+
 void handle_car_movement(){
     if(is_up_pressed) carSpeed += 0.005;
     if(is_down_pressed) carSpeed -= 0.005;
@@ -225,7 +234,9 @@ void handle_car_movement(){
     if(carSpeed > MAX_SPEED) carSpeed = MAX_SPEED;
     if(carSpeed < -MAX_SPEED) carSpeed = -MAX_SPEED;
 
-    car->translate(car->getForward() * carSpeed);
+    Vector3D nextPosition = car->getForward() * carSpeed;
+    if(isCarPositionValid(nextPosition, car->getCenterOfMassX(), car->getCenterOfMassZ())) car->translate(nextPosition);
+    else carSpeed = 0.0; 
 
     // desaceleracao (fiz com *0.1 para ir diminuindo gradualmente e n ter chance de diminuir dms alem do 0 e ficar um valor negativo)
     if(!is_up_pressed && !is_down_pressed){

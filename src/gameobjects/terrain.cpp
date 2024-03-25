@@ -31,10 +31,14 @@ void Terrain::loadTerrainTexture(const char *textura)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // define uma textura bidimensional
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, terrain_texture_width, terrain_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, terrain_image);
 
     stbi_image_free(terrain_image);
+    glDisable(GL_BLEND);
 }
 
 Terrain::Terrain(char *filename, const char *textura)

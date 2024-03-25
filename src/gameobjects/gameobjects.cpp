@@ -145,8 +145,6 @@ void GameObject::rotateWithGLM(glm::mat4 rotationMatrix) {
     forward.setX(newForward.x);
     forward.setY(newForward.y);
     forward.setZ(newForward.z);
-
-
 }
 
 /* PUBLIC */

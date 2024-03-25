@@ -74,6 +74,9 @@ public:
     float getY() { return y; };
     float getZ() { return z; };
 
+    float getCenterOfMassX() { return centerOfMass.x; };
+    float getCenterOfMassZ() { return centerOfMass.z; };
+
     void setX(float value) { x = value; };
     void setY(float value) { y = value; };
     void setZ(float value) { z = value; };
