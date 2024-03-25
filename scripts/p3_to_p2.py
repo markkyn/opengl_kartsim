@@ -30,6 +30,6 @@ def ppm_p3_to_p2_ascii(input_file, output_file):
 
 if __name__ == "__main__":
     input_file = "input.ppm"  # Nome do arquivo de entrada
-    output_file = "output.pgm"  # Nome do arquivo de saída
+    output_file = "output.ppm"  # Nome do arquivo de saída
     ppm_p3_to_p2_ascii(input_file, output_file)
     print("Conversão concluída com sucesso!")
