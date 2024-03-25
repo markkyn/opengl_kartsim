@@ -77,7 +77,7 @@ void iluminar()
     glLightfv(GL_LIGHT2, GL_SPECULAR, light1_specular);
     glLightfv(GL_LIGHT2, GL_AMBIENT, light1_ambient);
 
-    // glEnable(GL_LIGHT0);
+    //glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glEnable(GL_LIGHT2);
 }
@@ -176,7 +176,6 @@ void init(char **argv)
     terrain = new Terrain(argv[1], "../assets/textura_terreno_grande.png");
 
     //terrain = new Terrain(argv[1], "../assets/textura_teste_uv.jpg"); // pra testar certinho, eh bom colocar uma malha (imagem ppm) de tamanho igual ou maior q essa textura de teste
-    skybox->display();
 
     /* GameObj = Car */
     car = new GameObject("../assets/carro.obj", "../assets/textura_carro.png", true);
@@ -272,6 +271,8 @@ void display(void)
     camera->display();
 
     car->display();
+    skybox->display();
+
     terrain->drawTerrain();
     desenhar_eixos();
 

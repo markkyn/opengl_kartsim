@@ -86,7 +86,7 @@ void Terrain::loadFile(char *file_name)
         for (int j = 0; j < depth; j++)
         {
             file >> height;
-            topografy[i][j] = height * hightScale;
+            topografy[j][i] = height * hightScale;
         }
     }
 
