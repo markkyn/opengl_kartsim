@@ -41,7 +41,7 @@ Terrain::Terrain(char *filename, const char *textura)
 {
     this->width = 0;
     this->depth = 0;
-    this->hightScale = 0.15;
+    this->hightScale = 0.015;
 
     this->offset_x = 0.0f;
     this->offset_y = 0.0f;
