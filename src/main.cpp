@@ -38,7 +38,7 @@ Terrain *terrain;
 GameObject* pneus[5];
 GameObject* arquibancadas[4];
 GameObject* bandeira;
-GameObject* ambiente;
+GameObject* ceu;
 
 /* Helpers */
 Vector3D yAxis(0.0f, 1.0f, 0.0f);
@@ -146,7 +146,7 @@ void setPropsPositions()
     arquibancadas[3]->translate(Vector3D(0.0, 0.0, 79.0));
     arquibancadas[3]->rotateQuat(90.0, Vector3D(0.0, 1.0, 0.0));
 
-    ambiente->translate(Vector3D(79.0/2.0, 0.0, 79.0/2.0)); // meio do mapa
+    ceu->translate(Vector3D(79.0/2.0, 0.0, 79.0/2.0)); // meio do mapa
 }
 
 void init(char **argv)
@@ -173,7 +173,7 @@ void init(char **argv)
 
     bandeira = new GameObject("../assets/bandeira.obj", "../assets/textura_bandeira.png", true);
 
-    ambiente = new GameObject("../assets/ambiente.obj", "../assets/textura_ceu.png", true);
+    ceu = new GameObject("../assets/ceu.obj", "../assets/textura_ceu.png", true);
 
     car->attachCamera(camera);
     car->attachTerrain(terrain);
@@ -281,7 +281,7 @@ void display(void)
 
     bandeira->display();
 
-    ambiente->display();
+    ceu->display();
 
     iluminar();
 
